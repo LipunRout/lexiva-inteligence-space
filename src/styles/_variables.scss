@@ -1,0 +1,85 @@
+// Lexiva landing-page design tokens
+
+// --- Colors ---
+$color-primary: #29263A;
+$color-primary-alt: #252333;
+$color-secondary: #777582;
+$color-surface: #FFFFFF;
+$color-on-surface: #FFFFFF;
+
+// Accent
+$color-sky-blue: #6559DB;
+$color-light-sky-blue: #F0EDFF;
+$color-coral-red: #ED78B6;
+$color-slate-purple: #8C80F0;
+
+// Interactive
+$color-charcoal-gray: #555360;
+$color-dark-slate: #3A3750;
+
+// Neutral
+$color-pure-white: #FFFFFF;
+$color-off-white: #FAF9FC;
+$color-medium-gray: #777582;
+$color-light-gray: #92909B;
+$color-border-gray: #EEEAF4;
+$color-strong-gray: #252333;
+
+// Surface & Borders
+$color-light-border: #EEEAF4;
+$color-medium-border: #DAD8E2;
+$color-input-border: #E5E4E9;
+
+// --- Typography ---
+$font-family-primary: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+
+// --- Rounded ---
+$radius-md: 100px;
+$radius-sm: 3px;
+$radius-base: 4px;
+$radius-card: 16px;
+$radius-full: 999px;
+
+// --- Spacing (Base unit 4px) ---
+$space-1: 4px;
+$space-2: 8px;
+$space-3: 12px;
+$space-4: 16px;
+$space-5: 20px;
+$space-6: 24px;
+$space-7: 32px;
+$space-8: 40px;
+$space-9: 48px;
+$space-10: 80px;
+$space-11: 120px;
+
+// --- Breakpoints ---
+$bp-mobile-small: 320px;
+$bp-mobile-large: 480px;
+$bp-tablet: 768px;
+$bp-desktop: 1024px;
+$bp-desktop-large: 1440px;
+
+// --- Shadows ---
+$shadow-base: none;
+$shadow-raised: 0 4px 12px rgba(0, 0, 0, 0.08);
+$shadow-floating: 0 8px 24px rgba(0, 0, 0, 0.12);
+$shadow-modal: 0 16px 48px rgba(0, 0, 0, 0.20);
+
+// --- Opacity ---
+$opacity-disabled: 0.30;
+$opacity-hover: 0.05;
+$opacity-focus: 0.15;
+$opacity-overlay: 0.50;
+
+// --- Z-index ---
+$z-base: 1;
+$z-interactive: 2;
+$z-sticky: 3;
+$z-dropdown: 100;
+$z-modal: 1001;
+$z-top-modal: 9999;
+
+// --- Transitions ---
+$transition-fast: 0.2s ease;
+$transition-base: 0.3s ease;
