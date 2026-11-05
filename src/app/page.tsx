@@ -3,19 +3,23 @@ import { Hero } from '@/components/sections/hero';
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-white text-[#29263A]">
+    <div className="min-h-screen bg-[#030303] text-white">
       <main>
         <Hero />
-        <section id="about" className="border-t border-[#EEEAF4] bg-[#FAF9FC] px-4 py-20 sm:py-24">
-          <div className="mx-auto max-w-[1160px]">
+        <section id="about" className="relative border-t border-white/[0.08] bg-[#030303] px-4 py-20 sm:py-24">
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 bg-gradient-to-b from-indigo-500/[0.05] via-transparent to-rose-500/[0.05]"
+          />
+          <div className="relative mx-auto max-w-[1160px]">
             <div className="mx-auto mb-12 max-w-[620px] text-center">
-              <p className="mb-3 text-[12px] font-semibold uppercase tracking-[0.16em] text-[#7267D8]">
+              <p className="mb-3 text-[12px] font-semibold uppercase tracking-[0.16em] text-indigo-300">
                 Multiple perspectives, one place
               </p>
-              <h2 className="text-[36px] font-medium leading-[1.08] tracking-[-0.05em] text-[#29263A] sm:text-[48px]">
+              <h2 className="text-[36px] font-medium leading-[1.08] tracking-[-0.05em] text-white sm:text-[48px]">
                 Make more of every conversation.
               </h2>
-              <p className="mt-4 text-[16px] leading-7 text-[#777582]">
+              <p className="mt-4 text-[16px] leading-7 text-white/60">
                 Explore different model perspectives without losing your
                 context or your train of thought.
               </p>
@@ -59,20 +63,20 @@ function WorkflowCard({
   tone: 'lavender' | 'peach' | 'mint';
 }) {
   const toneStyles = {
-    lavender: 'bg-[#F0EDFF] text-[#6559DB]',
-    peach: 'bg-[#FFF0E8] text-[#BB6747]',
-    mint: 'bg-[#EAF5E0] text-[#558349]',
+    lavender: 'bg-indigo-400/15 text-indigo-200 ring-1 ring-indigo-300/20',
+    peach: 'bg-rose-400/15 text-rose-200 ring-1 ring-rose-300/20',
+    mint: 'bg-emerald-400/15 text-emerald-200 ring-1 ring-emerald-300/20',
   };
 
   return (
-    <article className="rounded-[20px] border border-[#E8E5EF] bg-white p-6 sm:p-7">
+    <article className="rounded-[20px] border border-white/[0.1] bg-white/[0.03] p-6 backdrop-blur transition duration-200 hover:border-white/[0.2] hover:bg-white/[0.05] motion-reduce:transition-none sm:p-7">
       <span className={`mb-7 inline-flex h-11 w-11 items-center justify-center rounded-[14px] text-[12px] font-semibold ${toneStyles[tone]}`}>
         {number}
       </span>
-      <h3 className="text-[19px] font-semibold tracking-[-0.03em] text-[#29263A]">
+      <h3 className="text-[19px] font-semibold tracking-[-0.03em] text-white">
         {title}
       </h3>
-      <p className="mt-2 text-[14px] leading-6 text-[#777582]">{description}</p>
+      <p className="mt-2 text-[14px] leading-6 text-white/60">{description}</p>
     </article>
   );
 }

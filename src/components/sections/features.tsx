@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import { Card } from '@/components/ui/card';
 import { useStaggerChildren } from '@/lib/animations';
 
 const features = [
@@ -41,27 +40,41 @@ const features = [
     icon: (
       <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
         <path d="M4 7h16M4 17h16" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-        <circle cx="9" cy="7" r="2.5" fill="white" stroke="currentColor" strokeWidth="1.6" />
-        <circle cx="15" cy="17" r="2.5" fill="white" stroke="currentColor" strokeWidth="1.6" />
+        <circle cx="9" cy="7" r="2.5" fill="currentColor" fillOpacity="0.2" stroke="currentColor" strokeWidth="1.6" />
+        <circle cx="15" cy="17" r="2.5" fill="currentColor" fillOpacity="0.2" stroke="currentColor" strokeWidth="1.6" />
       </svg>
     ),
   },
+];
+
+const tones = [
+  'bg-indigo-400/15 text-indigo-200 ring-1 ring-indigo-300/20',
+  'bg-rose-400/15 text-rose-200 ring-1 ring-rose-300/20',
+  'bg-emerald-400/15 text-emerald-200 ring-1 ring-emerald-300/20',
+  'bg-cyan-400/15 text-cyan-200 ring-1 ring-cyan-300/20',
 ];
 
 export function Features() {
   const { container } = useStaggerChildren(0.2);
 
   return (
-    <section id="features" className="bg-[#F5F4F3] px-4 py-20 lg:py-24">
-      <div className="mx-auto max-w-[1440px]">
-        <div className="mb-12 text-center sm:mb-14">
-          <p className="mb-3 text-[13px] font-medium uppercase tracking-[0.12em] text-[#646F79]">
+    <section
+      id="features"
+      className="relative border-t border-white/[0.08] bg-[#030303] px-4 py-24 lg:py-28"
+    >
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 bg-gradient-to-br from-indigo-500/[0.05] via-transparent to-rose-500/[0.05]"
+      />
+      <div className="relative mx-auto max-w-[1200px]">
+        <div className="mx-auto mb-14 max-w-[680px] text-center">
+          <p className="mb-3 text-[12px] font-semibold uppercase tracking-[0.16em] text-indigo-300">
             Thoughtful by design
           </p>
-          <h2 className="mb-4 text-[36px] font-light leading-[1.08] tracking-[-0.03em] text-[#0D0E10] sm:text-[44px] lg:text-[54px]">
-            Everything teams need
+          <h2 className="mb-4 text-[36px] font-medium leading-[1.05] tracking-[-0.05em] text-white sm:text-[48px] lg:text-[60px]">
+            Everything <span className="hero-gradient">teams need</span>
           </h2>
-          <p className="mx-auto max-w-[600px] text-[16px] leading-[28px] text-[#646F79]">
+          <p className="text-[17px] leading-[1.6] text-white/60">
             Powerful features wrapped in a calm, neutral interface that helps you
             focus on the work that matters.
           </p>
@@ -69,21 +82,23 @@ export function Features() {
 
         <div
           ref={container}
-          className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6"
+          className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-5"
         >
-          {features.map((feature) => (
+          {features.map((feature, i) => (
             <div key={feature.title} data-stagger-item className="h-full">
-              <Card className="h-full transition-colors duration-200 hover:border-[#C1C1C1]">
-                <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-full bg-[#F5F4F3] text-[#646F79] [&_svg]:h-5 [&_svg]:w-5">
+              <article className="group h-full rounded-[22px] border border-white/[0.1] bg-white/[0.03] p-6 backdrop-blur transition duration-200 hover:-translate-y-1 hover:border-indigo-300/30 hover:bg-white/[0.06] hover:shadow-[0_16px_40px_-12px_rgba(129,140,248,0.3)] motion-reduce:transition-none motion-reduce:hover:translate-y-0 sm:p-7">
+                <div
+                  className={`mb-7 flex h-12 w-12 items-center justify-center rounded-[14px] [&_svg]:h-5 [&_svg]:w-5 ${tones[i % tones.length]}`}
+                >
                   {feature.icon}
                 </div>
-                <h3 className="mb-3 text-[20px] font-medium leading-[1.3] text-[#0D0E10]">
+                <h3 className="mb-2 text-[20px] font-semibold tracking-[-0.03em] text-white">
                   {feature.title}
                 </h3>
-                <p className="text-[16px] leading-[28px] text-[#646F79]">
+                <p className="text-[15px] leading-[1.6] text-white/60">
                   {feature.description}
                 </p>
-              </Card>
+              </article>
             </div>
           ))}
         </div>
