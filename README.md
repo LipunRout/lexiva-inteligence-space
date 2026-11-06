@@ -31,7 +31,7 @@ Treat the Lexiva AI workspace as the product goal, not an already implemented fe
 
 | Path | Purpose |
 | --- | --- |
-| `src/app/page.tsx` | Homepage composition and workflow explainer section |
+| `src/app/page.tsx` | Homepage composition: hero, intelligence, perspectives, workspace previews, and getting started |
 | `src/app/layout.tsx` | Root document, metadata, and global style imports |
 | `src/app/chat/page.tsx` | Local-only AI chat workspace preview |
 | `src/app/models/page.tsx` | Provider status and secure setup guidance |
@@ -41,9 +41,14 @@ Treat the Lexiva AI workspace as the product goal, not an already implemented fe
 | `src/app/tailwind.css` | Tailwind base, components, and utilities |
 | `package.json` | Project name, scripts, and dependency manifest |
 | `src/components/ui/nav.tsx` | Responsive navigation and mobile menu |
-| `src/components/ui/site-footer.tsx` | Shared Lexiva footer across all routes |
+| `src/components/ui/site-footer.tsx` | Shared dark Lexiva footer and prototype status across all routes |
+| `src/components/sections/intelligence.tsx` | Homepage product principles and prototype transparency accordion |
+| `src/components/sections/perspectives.tsx` | Scrollable homepage perspectives carousel |
+| `src/components/sections/workspaces.tsx` | Interactive conversation, models, and history preview tabs |
+| `src/components/sections/get-started.tsx` | Homepage links to current local product previews |
 | `src/components/ui/product-ui.tsx` | Shared page intro, prototype notice, and empty-state components |
-| `public/lexiva-mark.png` | Official standalone Lexiva gradient circuit mark used with the live-text wordmark in the shared navigation and footer |
+| `public/lexiva-mark.png` | Current Lexiva symbol used in shared navigation, footer, and browser icons |
+| `src/app/icon.png` | Square Lexiva favicon generated from the supplied transparent logo |
 | `src/components/ui/button.tsx` | Reusable button and button-link variants |
 | `src/components/sections/hero.tsx` | AI concept hero, local-only email demo, and illustrative model-attribution cards |
 | `src/components/sections/features.tsx` | Reusable feature-section component; currently not mounted on the homepage |

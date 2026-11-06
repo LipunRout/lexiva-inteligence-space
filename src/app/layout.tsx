@@ -7,6 +7,11 @@ import './tailwind.css';
 export const metadata: Metadata = {
   title: 'Lexiva Intelligence Space',
   description: 'One space to chat with multiple AI models and see which model powers every response.',
+  icons: {
+    icon: '/lexiva-mark.png',
+    shortcut: '/lexiva-mark.png',
+    apple: '/lexiva-mark.png',
+  },
 };
 
 export const viewport: Viewport = {
