@@ -12,19 +12,19 @@ export function Card({
   padding = 'md',
 }: CardProps) {
   const paddingMap = {
-    sm: 'p-[24px]',
-    md: 'p-[24px]',
-    lg: 'p-[32px]',
+    sm: 'p-5',
+    md: 'p-6',
+    lg: 'p-8',
   };
 
   const base = clsx(
-    'border border-[#DBDBDB] rounded-[16px] bg-white text-[#0D0E10] transition-box-shadow duration-300 focus:outline-none',
+    'rounded-[22px] border border-white/[0.1] bg-white/[0.03] text-white backdrop-blur transition-shadow duration-300 focus:outline-none',
     paddingMap[padding]
   );
 
   const variantClass =
     variant === 'elevated'
-      ? 'shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.12)]'
+      ? 'bg-white/[0.05] shadow-[0_20px_50px_-20px_rgba(129,140,248,0.35)] hover:shadow-[0_24px_60px_-20px_rgba(129,140,248,0.5)]'
       : 'shadow-none';
 
   return (

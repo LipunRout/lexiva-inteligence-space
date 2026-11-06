@@ -276,8 +276,6 @@
 //     </svg>
 //   );
 // }
-
-
 'use client';
 
 import React, { FormEvent, useEffect, useState } from 'react';
@@ -316,12 +314,10 @@ export function Hero() {
   return (
     <section
       id="product"
-      className="relative isolate overflow-hidden bg-[#0A0A0C] p-2 [background-image:repeating-linear-gradient(135deg,rgba(255,255,255,0.05)_0_1px,transparent_1px_10px)] sm:p-3 lg:p-4"
+      className="relative isolate w-full overflow-hidden bg-[#0A0A0C] p-2 [background-image:repeating-linear-gradient(135deg,rgba(255,255,255,0.05)_0_1px,transparent_1px_10px)] sm:p-3 lg:p-4"
     >
       <div className="grid w-full overflow-hidden border border-white/[0.1] bg-[#0B0B0E] lg:grid-cols-2">
-        {/* Copy: top-aligned so nothing shifts */}
-        <div className="flex flex-col justify-start pb-8 pt-8 lg:pt-10">
-          {/* Banded headline */}
+        <div className="flex min-w-0 flex-col justify-start pb-8 pt-8 lg:pt-10">
           <div className="border-y border-white/[0.1] bg-gradient-to-r from-white/[0.07] via-white/[0.04] to-transparent px-5 py-5 sm:px-8 lg:px-12">
             <motion.p
               {...rise(0)}
@@ -331,7 +327,7 @@ export function Hero() {
             </motion.p>
             <motion.h1
               {...rise(0.08)}
-              className="whitespace-nowrap text-[30px] font-medium leading-[1.1] tracking-[-0.04em] text-white sm:text-[42px] xl:text-[56px]"
+              className="text-[28px] font-medium leading-[1.1] tracking-[-0.04em] text-white sm:whitespace-nowrap sm:text-[42px] xl:text-[56px]"
             >
               <span className="block">Every model.</span>
 
@@ -422,7 +418,7 @@ export function Hero() {
             </motion.div>
 
             <motion.div {...rise(0.36)} className="mt-5 flex items-center gap-3 text-[12.5px] text-white/50">
-              <span className="flex">
+              <span className="flex shrink-0">
                 {['GPT', 'CL', 'GM', '+'].map((t, i) => (
                   <span
                     key={t}
@@ -438,15 +434,14 @@ export function Hero() {
           </div>
         </div>
 
-        {/* Sculpture */}
-        <div className="relative h-[380px] border-t border-white/[0.1] lg:h-auto lg:min-h-[560px] lg:border-l lg:border-t-0">
+        <div className="relative h-[380px] min-w-0 border-t border-white/[0.1] lg:h-auto lg:min-h-[560px] lg:border-l lg:border-t-0">
           <div className="absolute inset-0">
             <InkOrbitSculpture seed={7} />
           </div>
         </div>
       </div>
 
-      <p className="py-4 text-center text-[11px] font-medium uppercase tracking-[0.14em] text-white/45">
+      <p className="pb-20 pt-4 text-center text-[11px] font-medium uppercase tracking-[0.14em] text-white/45 sm:py-4">
         Many perspectives. One conversation.
       </p>
     </section>

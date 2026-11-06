@@ -42,17 +42,17 @@ export function Perspectives() {
   const [paused, setPaused] = useState(false);
 
   return (
-    <section className="relative border-t border-white/[0.08] bg-[#030303] py-20 sm:py-24">
-      <style>{CSS}</style>
+    <section className="relative w-full overflow-hidden border-t border-white/[0.08] bg-[#030303] py-16 sm:py-24">
+      <style dangerouslySetInnerHTML={{ __html: CSS }} />
 
       <div className="mx-auto max-w-[1200px] px-4">
         <p className="mb-4 text-[12px] font-semibold uppercase tracking-[0.16em] text-indigo-300">
           Perspectives
         </p>
-        <h2 className="max-w-[760px] text-[40px] font-medium leading-[1.02] tracking-[-0.055em] text-white sm:text-[60px]">
+        <h2 className="max-w-[760px] text-[34px] font-medium leading-[1.05] tracking-[-0.055em] text-white sm:text-[60px] sm:leading-[1.02]">
           Many ways to <span className="hero-gradient">think it through</span>
         </h2>
-        <p className="mt-5 max-w-[640px] text-[17px] leading-[1.6] text-white/60">
+        <p className="mt-5 max-w-[640px] text-[16px] leading-[1.6] text-white/60 sm:text-[17px]">
           Different tasks call for different approaches. These are the conversation styles Lexiva is
           being designed around.
         </p>
@@ -89,7 +89,7 @@ export function Perspectives() {
       <div
         role="group"
         aria-label="Conversation styles"
-        className={`pp-viewport mt-10 overflow-hidden pb-4 [mask-image:linear-gradient(to_right,transparent,#000_6%,#000_94%,transparent)] ${
+        className={`pp-viewport mt-10 w-full overflow-hidden pb-4 [mask-image:linear-gradient(to_right,transparent,#000_6%,#000_94%,transparent)] ${
           paused ? 'pp-paused' : ''
         }`}
       >
@@ -99,7 +99,7 @@ export function Perspectives() {
               {CARDS.map((c) => (
                 <li
                   key={c.title}
-                  className="pp-card group w-[280px] shrink-0 rounded-[24px] border border-white/[0.1] bg-white/[0.03] p-7 transition duration-200 hover:border-indigo-300/30 hover:bg-white/[0.06] sm:w-[320px]"
+                  className="pp-card group w-[260px] shrink-0 rounded-[24px] border border-white/[0.1] bg-white/[0.03] p-6 transition duration-200 hover:border-indigo-300/30 hover:bg-white/[0.06] sm:w-[320px] sm:p-7"
                 >
                   <div className="flex items-start justify-between">
                     <Blob colors={c.colors} shape={c.shape} face={c.face} />
@@ -107,8 +107,8 @@ export function Perspectives() {
                       Planned
                     </span>
                   </div>
-                  <h3 className="mt-14 text-[26px] font-medium tracking-[-0.04em] text-white">{c.title}</h3>
-                  <p className="mt-2 text-[17px] text-white/55">{c.line}</p>
+                  <h3 className="mt-12 text-[24px] font-medium tracking-[-0.04em] text-white sm:mt-14 sm:text-[26px]">{c.title}</h3>
+                  <p className="mt-2 text-[16px] text-white/55 sm:text-[17px]">{c.line}</p>
                 </li>
               ))}
             </ul>
@@ -119,7 +119,7 @@ export function Perspectives() {
   );
 }
 
-/* ---------- Glossy blob icons (original SVG, no assets) ---------- */
+/* Glossy blob icons (original SVG, no assets) */
 
 function Blob({
   colors,

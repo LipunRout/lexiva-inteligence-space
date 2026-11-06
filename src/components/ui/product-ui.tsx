@@ -13,13 +13,14 @@ export function PageIntro({
 }) {
   return (
     <div className="mb-9 max-w-[760px]">
-      <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#7065D1]">
+      <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/[0.1] bg-white/[0.04] px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-indigo-300">
+        <span className="h-1.5 w-1.5 rounded-full bg-gradient-to-br from-indigo-400 to-rose-400" />
         {eyebrow}
       </p>
-      <h1 className="text-[36px] font-semibold leading-[1.08] tracking-[-0.05em] text-[#29263A] sm:text-[48px]">
+      <h1 className="text-[34px] font-medium leading-[1.05] tracking-[-0.055em] text-white sm:text-[52px]">
         {title}
       </h1>
-      <p className="mt-4 max-w-[640px] text-[15px] leading-7 text-[#777582]">
+      <p className="mt-4 max-w-[640px] text-[16px] leading-[1.6] text-white/60">
         {description}
       </p>
       {children}
@@ -31,9 +32,9 @@ export function PrototypeNotice({ children }: { children: React.ReactNode }) {
   return (
     <div
       role="note"
-      className="flex items-start gap-3 rounded-[14px] border border-[#E8E3D8] bg-[#FFFCF5] p-4 text-[13px] leading-5 text-[#6D624B]"
+      className="flex items-start gap-3 rounded-[16px] border border-amber-300/20 bg-amber-300/[0.06] p-4 text-[13px] leading-5 text-amber-100/80"
     >
-      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#F6E9C9] text-[11px] font-semibold text-[#79652F]">
+      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-amber-300/20 text-[11px] font-semibold text-amber-200">
         i
       </span>
       <div>{children}</div>
@@ -52,11 +53,11 @@ export function EmptyState({
 }) {
   return (
     <div className="mx-auto flex max-w-[440px] flex-col items-center py-14 text-center">
-      <span className="mb-5 flex h-14 w-14 items-center justify-center rounded-[18px] bg-[#F0EDFF] text-[22px] font-medium text-[#6559DB]">
+      <span className="mb-5 flex h-14 w-14 items-center justify-center rounded-[18px] bg-gradient-to-br from-indigo-400/25 to-rose-400/25 text-[22px] font-medium text-white ring-1 ring-white/[0.15]">
         {symbol}
       </span>
-      <h2 className="text-[18px] font-semibold tracking-[-0.02em] text-[#29263A]">{title}</h2>
-      <p className="mt-2 text-[14px] leading-6 text-[#777582]">{description}</p>
+      <h2 className="text-[19px] font-semibold tracking-[-0.02em] text-white">{title}</h2>
+      <p className="mt-2 text-[14.5px] leading-6 text-white/55">{description}</p>
     </div>
   );
 }

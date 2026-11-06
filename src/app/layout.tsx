@@ -1,22 +1,21 @@
 import type { Metadata, Viewport } from 'next';
+import { Suspense } from 'react';
 import { HeaderNav } from '@/components/ui/nav';
 import { SiteFooter } from '@/components/ui/site-footer';
+import { RouteProgress } from '@/components/ui/route-progress';
 import './globals.scss';
 import './tailwind.css';
 
 export const metadata: Metadata = {
   title: 'Lexiva Intelligence Space',
   description: 'One space to chat with multiple AI models and see which model powers every response.',
-  icons: {
-    icon: '/lexiva-mark.png',
-    shortcut: '/lexiva-mark.png',
-    apple: '/lexiva-mark.png',
-  },
 };
 
 export const viewport: Viewport = {
   themeColor: '#030303',
   colorScheme: 'dark',
+  width: 'device-width',
+  initialScale: 1,
 };
 
 export default function RootLayout({
@@ -25,8 +24,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="bg-[#030303]">
+    <html lang="en" className="overflow-x-hidden bg-[#030303]">
       <body className="min-h-screen bg-[#030303] text-white antialiased">
+        <Suspense fallback={null}>
+          <RouteProgress />
+        </Suspense>
         <HeaderNav />
         {children}
         <SiteFooter />

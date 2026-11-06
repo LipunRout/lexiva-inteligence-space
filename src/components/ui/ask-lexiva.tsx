@@ -2,6 +2,7 @@
 
 import React, { FormEvent, useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 
 type Msg = {
@@ -153,20 +154,27 @@ export function AskLexiva() {
   return (
     <>
       {/* Launcher: always visible, no hover or scroll effects */}
-      {!open && (
+            {!open && (
         <button
           ref={launcherRef}
           type="button"
           onClick={() => setOpen(true)}
           aria-label="Open Ask Lexiva chat"
           aria-haspopup="dialog"
-          className="fixed bottom-4 right-4 z-40 flex h-14 items-center gap-3 rounded-full border border-white/[0.18] bg-[#0B0B0E] pl-3.5 pr-5 text-[15px] font-medium text-white shadow-[0_10px_40px_-10px_rgba(129,140,248,0.5)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-300 sm:bottom-6 sm:right-6"
+          className="fixed bottom-[max(1rem,env(safe-area-inset-bottom))] right-[max(1rem,env(safe-area-inset-right))] z-40 flex h-14 w-14 items-center justify-center rounded-full border border-white/[0.18] bg-[#0B0B0E] text-[15px] font-medium text-white shadow-[0_10px_40px_-10px_rgba(129,140,248,0.5)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-300 sm:bottom-6 sm:right-6 sm:w-auto sm:gap-3 sm:pl-3.5 sm:pr-5"
         >
-          <span className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-indigo-400 to-rose-400 text-[13px] text-white">
-            ✦
+          <span className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full sm:h-8 sm:w-8">
+            <Image
+              src="/lexiva-mark.png"
+              alt=""
+              aria-hidden="true"
+              width={512}
+              height={512}
+              className="h-full w-full object-contain"
+            />
             <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-[#0B0B0E] bg-emerald-400" />
           </span>
-          Ask Lexiva
+          <span className="hidden sm:inline">Ask Lexiva</span>
         </button>
       )}
 
@@ -188,8 +196,15 @@ export function AskLexiva() {
                 aria-hidden="true"
                 className="pointer-events-none absolute inset-0 bg-gradient-to-r from-indigo-500/[0.14] via-transparent to-rose-500/[0.12]"
               />
-              <span className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-indigo-400 to-rose-400 text-[15px] text-white">
-                ✦
+              <span className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full">
+                <Image
+                  src="/lexiva-mark.png"
+                  alt=""
+                  aria-hidden="true"
+                  width={512}
+                  height={512}
+                  className="h-full w-full object-contain"
+                />
               </span>
               <div className="relative min-w-0 flex-1">
                 <p className="text-[15px] font-semibold tracking-[-0.02em] text-white">Ask Lexiva</p>
