@@ -21,6 +21,19 @@ body {
   overflow-x: hidden;
 }
 
+/* Light theme: invert the page, then flip media back so it keeps its real colours */
+html[data-theme='light'] {
+  filter: invert(1) hue-rotate(180deg);
+}
+
+html[data-theme='light'] img,
+html[data-theme='light'] picture,
+html[data-theme='light'] video,
+html[data-theme='light'] canvas,
+html[data-theme='light'] iframe {
+  filter: invert(1) hue-rotate(180deg);
+}
+
 .hero-gradient {
   background: linear-gradient(100deg, #a5b4fc 8%, #d8b4fe 50%, #fda4af 100%);
   -webkit-background-clip: text;

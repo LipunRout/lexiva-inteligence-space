@@ -1,185 +1,232 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useId, useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
+import { LayoutGroup, motion } from 'framer-motion';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
 
-const links = [
+const LINKS = [
   { label: 'Chat', href: '/chat' },
   { label: 'Models', href: '/models' },
   { label: 'Compare', href: '/compare' },
   { label: 'History', href: '/history' },
 ];
 
-export function HeaderNav() {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const pathname = usePathname();
+const NOTCH = 'bg-[#17171d] text-[#f4f1ea]';
+const WING = 'pointer-events-none absolute top-0 h-4 w-4 overflow-visible text-[#17171d]';
 
-  function closeMenu() {
-    setMenuOpen(false);
-  }
+function WingLeft() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 20 20" fill="none" className={`${WING} right-full`}>
+      <path d="M 0 0 C 11.046 0 20 8.954 20 20 H 21 V -1 H 0 Z" fill="currentColor" />
+    </svg>
+  );
+}
+function WingRight() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 20 20" fill="none" className={`${WING} left-full`}>
+      <path d="M 20 0 C 8.954 0 0 8.954 0 20 H -1 V -1 H 20 Z" fill="currentColor" />
+    </svg>
+  );
+}
+
+function Logo({ onClick }: { onClick?: () => void }) {
+  return (
+    <Link
+      href="/"
+      onClick={onClick}
+      aria-label="Lexiva home"
+      className="inline-flex items-center gap-2 rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-dashed focus-visible:outline-offset-4 focus-visible:outline-[#f4f1ea]"
+    >
+      <Image
+        src="/lexiva-mark.png"
+        alt=""
+        aria-hidden="true"
+        width={840}
+        height={768}
+        priority
+        className="h-8 w-8 object-contain"
+      />
+      <span className="flex flex-col">
+        <span className="text-[16px] font-semibold leading-4 tracking-[-0.04em] text-[#f4f1ea]">Lexiva</span>
+        <span className="text-[7px] font-semibold uppercase leading-3 tracking-[0.16em] text-[#a5b4fc]">
+          Intelligence Space
+        </span>
+      </span>
+    </Link>
+  );
+}
+
+function StartButton({ onClick, className = '' }: { onClick?: () => void; className?: string }) {
+  return (
+    <Link
+      href="/chat"
+      onClick={onClick}
+      className={`inline-flex h-8 items-center justify-center rounded-full border-2 border-[#f4f1ea] bg-[#f4f1ea] px-4 text-[13px] font-bold text-[#0B0B0E] shadow-[0_2px_0_#a5b4fc] transition-transform duration-150 hover:-translate-y-0.5 hover:-rotate-1 active:translate-y-0.5 active:shadow-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-dashed focus-visible:outline-offset-4 focus-visible:outline-[#f4f1ea] motion-reduce:transition-none ${className}`}
+    >
+      Start a chat
+    </Link>
+  );
+}
+
+export function HeaderNav() {
+  const pathname = usePathname();
+  const group = useId();
+  const [open, setOpen] = useState(false);
+  const box = useRef<HTMLDivElement>(null);
+
+  const current = LINKS.find((l) => l.href === pathname);
+
+  useEffect(() => setOpen(false), [pathname]);
 
   useEffect(() => {
-    if (!menuOpen) return;
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setMenuOpen(false);
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false);
+    const onDown = (e: MouseEvent) => {
+      if (box.current && !box.current.contains(e.target as Node)) setOpen(false);
+    };
     window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [menuOpen]);
+    document.addEventListener('mousedown', onDown);
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      document.removeEventListener('mousedown', onDown);
+    };
+  }, [open]);
 
   return (
-    <header className="sticky top-0 z-30 bg-[#050509]/85 backdrop-blur-xl">
-      {/* Colour wash */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 bg-gradient-to-r from-indigo-500/[0.18] via-violet-500/[0.08] to-rose-500/[0.18]"
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -left-24 top-0 h-24 w-72 rounded-full bg-indigo-500/25 blur-[70px]"
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -right-24 top-0 h-24 w-72 rounded-full bg-rose-500/20 blur-[70px]"
-      />
-      {/* Gradient bottom line */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-indigo-300/60 to-transparent"
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-indigo-400/40 via-transparent to-rose-400/40"
-      />
+    <header className="sticky top-0 z-30 h-[52px] w-full border-b-2 border-dashed border-[#f4f1ea]/25 bg-[#0A0A0C] [background-image:repeating-linear-gradient(135deg,rgba(244,241,234,0.05)_0_1px,transparent_1px_10px)]">
+      {/* Desktop (xl and up): three notches */}
+      <div className="hidden xl:block">
+        <div className={`absolute left-0 top-0 flex h-[44px] items-center rounded-br-[24px] px-6 ${NOTCH}`}>
+          <Logo />
+          <WingRight />
+        </div>
 
-      <div className="relative mx-auto flex h-[72px] max-w-[1440px] items-center justify-between px-4 sm:px-7 lg:px-10">
-        <Link
-          href="/"
-          onClick={closeMenu}
-          aria-label="Lexiva home"
-          className="inline-flex items-center gap-2 rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-indigo-300"
+        <nav
+          aria-label="Main navigation"
+          className={`absolute left-1/2 top-0 flex h-[44px] -translate-x-1/2 items-center rounded-b-[24px] px-4 ${NOTCH}`}
         >
-          <Image
-            src="/lexiva-mark.png"
-            alt=""
-            aria-hidden="true"
-            width={512}
-            height={512}
-            priority
-            className="h-10 w-10 object-contain sm:h-11 sm:w-11"
-          />
-          <span className="flex flex-col">
-            <span className="text-[18px] font-semibold leading-5 tracking-[-0.05em] text-white">
-              Lexiva
-            </span>
-            <span className="bg-gradient-to-r from-indigo-300 to-rose-300 bg-clip-text text-[8px] font-semibold uppercase leading-3 tracking-[0.16em] text-transparent">
-              Intelligence Space
-            </span>
-          </span>
-        </Link>
-
-        <nav aria-label="Main navigation" className="hidden items-center gap-1.5 md:flex">
-          {links.map((link) => {
-            const active = pathname === link.href;
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
-                aria-current={active ? 'page' : undefined}
-                className={`group relative inline-flex min-h-10 items-center rounded-full px-4 text-[13px] font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-300 ${
-                  active
-                    ? 'bg-gradient-to-r from-indigo-400/25 to-rose-400/25 text-white ring-1 ring-white/[0.15]'
-                    : 'text-white/70 hover:text-white'
-                }`}
-              >
-                {link.label}
-                {!active && (
-                  <span
-                    aria-hidden="true"
-                    className="absolute inset-x-4 bottom-1.5 h-px origin-left scale-x-0 bg-gradient-to-r from-indigo-300 to-rose-300 transition-transform duration-300 group-hover:scale-x-100 motion-reduce:transition-none"
-                  />
-                )}
-              </Link>
-            );
-          })}
+          <WingLeft />
+          <WingRight />
+          <LayoutGroup id={group}>
+            <ul className="flex items-center gap-1">
+              {LINKS.map((l) => {
+                const active = pathname === l.href;
+                return (
+                  <li key={l.href}>
+                    <Link
+                      href={l.href}
+                      aria-current={active ? 'page' : undefined}
+                      className={`relative flex h-9 items-center rounded-full px-4 text-[14px] font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-dashed focus-visible:outline-offset-2 focus-visible:outline-[#f4f1ea] ${
+                        active ? 'font-bold text-[#0B0B0E]' : 'text-[#f4f1ea]/65 hover:text-[#f4f1ea]'
+                      }`}
+                    >
+                      {active && (
+                        <motion.span
+                          layoutId="notch-active"
+                          className="absolute inset-0 rounded-full bg-[#f4f1ea]"
+                          transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                        />
+                      )}
+                      <span className="relative z-10 leading-none">{l.label}</span>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </LayoutGroup>
         </nav>
 
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className={`absolute right-0 top-0 flex h-[44px] items-center gap-3 rounded-bl-[24px] px-6 ${NOTCH}`}>
+          <WingLeft />
           <Link
             href="/#workflow"
-            className="hidden min-h-11 items-center px-3 text-[13px] font-medium text-white/70 transition-colors hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-300 sm:inline-flex"
+            className="inline-flex h-9 items-center px-2 text-[13px] font-medium text-[#f4f1ea]/65 hover:text-[#f4f1ea] focus-visible:outline focus-visible:outline-2 focus-visible:outline-dashed focus-visible:outline-offset-2 focus-visible:outline-[#f4f1ea]"
           >
             How it works
           </Link>
-          <Link
-            href="/chat"
-            className="hidden h-10 items-center justify-center rounded-full bg-gradient-to-r from-indigo-400 via-violet-400 to-rose-400 px-5 text-[13px] font-semibold text-[#0E0D14] shadow-[0_8px_24px_-8px_rgba(167,139,250,0.7)] transition hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-300 sm:inline-flex"
-          >
-            Start a chat
-          </Link>
-          <button
-            type="button"
-            className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/[0.18] bg-white/[0.06] text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-300 md:hidden"
-            aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'}
-            aria-expanded={menuOpen}
-            aria-controls="mobile-navigation"
-            onClick={() => setMenuOpen((open) => !open)}
-          >
-            {menuOpen ? (
-              <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5" fill="none">
-                <path d="m6 6 12 12M18 6 6 18" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-              </svg>
-            ) : (
-              <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5" fill="none">
-                <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-              </svg>
-            )}
-          </button>
+          <ThemeToggle />
+          <StartButton />
         </div>
       </div>
 
-      {menuOpen && (
-        <nav
-          id="mobile-navigation"
-          aria-label="Mobile navigation"
-          className="relative border-t border-white/[0.08] bg-gradient-to-b from-[#0B0B14] to-[#0E0A12] px-4 py-3 md:hidden"
-        >
-          <div className="mx-auto flex max-w-[1440px] flex-col">
-            {links.map((link) => {
-              const active = pathname === link.href;
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  onClick={closeMenu}
-                  aria-current={active ? 'page' : undefined}
-                  className={`flex min-h-11 items-center rounded-xl px-3 text-[15px] font-medium focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-300 ${
-                    active
-                      ? 'bg-gradient-to-r from-indigo-400/20 to-rose-400/20 text-white'
-                      : 'text-white/75'
-                  }`}
-                >
-                  {link.label}
-                </Link>
-              );
-            })}
-            <Link
-              href="/#workflow"
-              onClick={closeMenu}
-              className="flex min-h-11 items-center px-3 text-[15px] font-medium text-white/75"
+      {/* Tablet and mobile (below xl): one compact notch */}
+      <div
+        ref={box}
+        className={`absolute left-1/2 top-0 w-[min(92vw,440px)] -translate-x-1/2 rounded-b-[24px] px-4 xl:hidden ${NOTCH}`}
+      >
+        <WingLeft />
+        <WingRight />
+
+        <div className="flex h-[44px] items-center justify-between gap-2">
+          <Logo onClick={() => setOpen(false)} />
+
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <button
+              type="button"
+              aria-expanded={open}
+              aria-controls="mobile-navigation"
+              aria-label={open ? 'Close navigation menu' : 'Open navigation menu'}
+              onClick={() => setOpen((o) => !o)}
+              className="inline-flex h-9 items-center gap-2 rounded-full border-2 border-[#f4f1ea]/60 px-3 text-[13px] font-semibold text-[#f4f1ea] focus-visible:outline focus-visible:outline-2 focus-visible:outline-dashed focus-visible:outline-offset-2 focus-visible:outline-[#f4f1ea]"
             >
-              How it works
-            </Link>
-            <Link
-              href="/chat"
-              onClick={closeMenu}
-              className="mt-3 inline-flex h-12 items-center justify-center rounded-full bg-gradient-to-r from-indigo-400 via-violet-400 to-rose-400 text-[14px] font-semibold text-[#0E0D14]"
-            >
-              Start a chat
-            </Link>
+              <span>{current ? current.label : 'Menu'}</span>
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 20 20"
+                fill="none"
+                className={`h-3.5 w-3.5 transition-transform duration-200 motion-reduce:transition-none ${open ? 'rotate-180' : ''}`}
+              >
+                <path d="m5 8 5 5 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
           </div>
-        </nav>
-      )}
+        </div>
+
+        <div
+          id="mobile-navigation"
+          className={`grid transition-[grid-template-rows,opacity] duration-200 ease-out motion-reduce:transition-none ${
+            open ? 'grid-rows-[1fr] opacity-100' : 'pointer-events-none grid-rows-[0fr] opacity-0'
+          }`}
+        >
+          <div className="overflow-hidden">
+            <nav aria-label="Mobile navigation" className="flex flex-col gap-1 pb-3 pt-1">
+              {LINKS.map((l) => {
+                const active = pathname === l.href;
+                return (
+                  <Link
+                    key={l.href}
+                    href={l.href}
+                    tabIndex={open ? 0 : -1}
+                    aria-current={active ? 'page' : undefined}
+                    className={`flex min-h-11 items-center justify-between rounded-xl px-3 text-[15px] font-medium focus-visible:outline focus-visible:outline-2 focus-visible:outline-dashed focus-visible:outline-[#f4f1ea] ${
+                      active ? 'bg-[#f4f1ea] font-bold text-[#0B0B0E]' : 'text-[#f4f1ea]/75'
+                    }`}
+                  >
+                    {l.label}
+                    {active && (
+                      <svg aria-hidden="true" viewBox="0 0 20 20" fill="none" className="h-4 w-4">
+                        <path d="m4 10 4 4 8-8" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    )}
+                  </Link>
+                );
+              })}
+              <Link
+                href="/#workflow"
+                tabIndex={open ? 0 : -1}
+                className="flex min-h-11 items-center rounded-xl px-3 text-[15px] font-medium text-[#f4f1ea]/75 focus-visible:outline focus-visible:outline-2 focus-visible:outline-dashed focus-visible:outline-[#f4f1ea]"
+              >
+                How it works
+              </Link>
+              <StartButton className="mt-2 !h-11 w-full !text-[14px]" />
+            </nav>
+          </div>
+        </div>
+      </div>
     </header>
   );
 }
