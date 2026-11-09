@@ -215,6 +215,15 @@ export function AIMessage({
 }) {
   const [copied, setCopied] = useState(false);
   const sample = message.kind === 'sample';
+  const notice = message.kind === 'notice';
+
+  // Real model replies are attributed to the model; samples and notices are attributed to Lexiva.
+  const title = sample || notice ? 'Lexiva' : model.name;
+  const badge = sample
+    ? 'Sample content · not model output'
+    : notice
+      ? 'Notice · not model output'
+      : model.provider;
 
   return (
     <motion.div
@@ -226,10 +235,12 @@ export function AIMessage({
       <ProviderIcon model={model} size={30} />
       <div className="min-w-0 flex-1">
         <div className="mb-2 flex flex-wrap items-center gap-x-2 gap-y-1">
-          <span className="text-[14px] font-semibold text-white">Lexiva preview</span>
-          <span className="rounded-full border border-white/[0.14] px-2 py-0.5 text-[11px] text-white/60">
-            {sample ? 'Sample content · not model output' : `Selected: ${model.name} · ${model.provider} · not connected`}
-          </span>
+          <span className="text-[14px] font-semibold text-white">{title}</span>
+          {badge && (
+            <span className="rounded-full border border-white/[0.14] px-2 py-0.5 text-[11px] text-white/60">
+              {badge}
+            </span>
+          )}
         </div>
 
         <Markdown text={message.content} />
@@ -276,7 +287,7 @@ export function AIMessage({
 
 export function TypingRow({ model }: { model: ModelInfo }) {
   return (
-    <div className="flex gap-3" role="status" aria-label="Preparing a preview reply">
+    <div className="flex gap-3" role="status" aria-label="Waiting for a reply">
       <ProviderIcon model={model} size={30} />
       <div className="flex items-center gap-1.5 rounded-2xl border border-white/[0.1] bg-white/[0.04] px-4 py-3.5">
         {[0, 1, 2].map((i) => (

@@ -2,18 +2,28 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { MODELS, getModel } from './data';
+import { getModel } from './data';
+import { useModels } from './use-models';
 import { ProviderIcon } from './provider-icon';
 
 const STAR = 'M8 1.6L9.95 5.55L14.3 6.18L11.15 9.25L11.89 13.58L8 11.53L4.11 13.58L4.85 9.25L1.7 6.18L6.05 5.55L8 1.6Z';
+const FAV_KEY = 'lexiva:favs';
 
 export function ModelSelector({ value, onChange }: { value: string; onChange: (id: string) => void }) {
+  const { models, loading } = useModels();
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState<'fav' | 'all'>('all');
   const [query, setQuery] = useState('');
-  const [favs, setFavs] = useState<string[]>(['claude', 'gpt']);
+  const [favs, setFavs] = useState<string[]>([]);
   const wrap = useRef<HTMLDivElement>(null);
   const current = getModel(value);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(FAV_KEY);
+      if (saved) setFavs(JSON.parse(saved));
+    } catch {}
+  }, []);
 
   useEffect(() => {
     if (!open) return;
@@ -30,14 +40,20 @@ export function ModelSelector({ value, onChange }: { value: string; onChange: (i
   }, [open]);
 
   const q = query.trim().toLowerCase();
-  const list = MODELS.filter(
+  const list = models.filter(
     (m) =>
       (tab === 'all' || favs.includes(m.id)) &&
       (!q || m.name.toLowerCase().includes(q) || m.provider.toLowerCase().includes(q))
   );
 
   const toggleFav = (id: string) =>
-    setFavs((f) => (f.includes(id) ? f.filter((x) => x !== id) : [...f, id]));
+    setFavs((f) => {
+      const next = f.includes(id) ? f.filter((x) => x !== id) : [...f, id];
+      try {
+        localStorage.setItem(FAV_KEY, JSON.stringify(next));
+      } catch {}
+      return next;
+    });
 
   return (
     <div ref={wrap} className="relative">
@@ -52,8 +68,10 @@ export function ModelSelector({ value, onChange }: { value: string; onChange: (i
         className="inline-flex h-[38px] items-center gap-2 rounded-full border border-transparent pl-1.5 pr-3 text-[15px] font-medium tracking-[-0.011em] text-[#f4f4f6] transition-colors hover:border-white/[0.075] hover:bg-white/[0.045] focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/60"
       >
         <ProviderIcon model={current} size={26} />
-        <span>{current.name}</span>
-        <span className="hidden text-[#8e8d95] sm:inline">Planned</span>
+        <span className="max-w-[140px] truncate">{loading ? 'Loading...' : current.name}</span>
+        {current.provider && !loading && (
+          <span className="hidden text-[#8e8d95] sm:inline">{current.provider}</span>
+        )}
         <svg viewBox="0 0 16 16" fill="none" className={`h-[13px] w-[13px] text-[#9e9da6] transition-transform ${open ? 'rotate-180' : ''}`} aria-hidden="true">
           <path d="M4 6L8 10L12 6" stroke="currentColor" strokeWidth="1.65" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
@@ -121,21 +139,28 @@ export function ModelSelector({ value, onChange }: { value: string; onChange: (i
                       </svg>
                     )}
                     {t}
-                    <span className="text-[11.5px] opacity-70">{t === 'fav' ? favs.length : MODELS.length}</span>
+                    <span className="text-[11.5px] opacity-70">
+                      {t === 'fav' ? favs.filter((f) => models.some((m) => m.id === f)).length : models.length}
+                    </span>
                   </button>
                 ))}
               </div>
 
-              <p className="mx-2 mb-1 text-[11.5px] leading-4 text-[#8e8d95]">
-                No model is connected yet. Your choice is remembered for when providers exist.
-              </p>
-
               <div className="flex flex-col gap-0.5">
-                {list.length === 0 && (
+                {loading && <p className="px-3 py-4 text-center text-[13px] text-[#8e8d95]">Loading models...</p>}
+
+                {!loading && models.length === 0 && (
+                  <p className="px-3 py-4 text-center text-[13px] leading-5 text-[#8e8d95]">
+                    No providers are configured. Add an API key to <code>.env.local</code> and restart the server.
+                  </p>
+                )}
+
+                {!loading && models.length > 0 && list.length === 0 && (
                   <p className="px-3 py-4 text-center text-[13px] text-[#8e8d95]">
                     {tab === 'fav' ? 'No favourites yet. Open "all" and press the star.' : 'No matching models'}
                   </p>
                 )}
+
                 {list.map((m) => {
                   const selected = m.id === value;
                   const fav = favs.includes(m.id);
@@ -158,10 +183,9 @@ export function ModelSelector({ value, onChange }: { value: string; onChange: (i
                         <span className="min-w-0 flex-1">
                           <span className="block truncate text-[14.5px] tracking-[-0.011em]">
                             <span className="font-medium text-[#f4f4f6]">{m.name}</span>
-                            <span className="ml-1.5 text-[#8e8d95]">{m.provider}</span>
                           </span>
-                          <span className="block truncate text-[11.5px] text-amber-200/80">
-                            {m.status === 'planned' ? 'Planned · not connected' : 'Unavailable'}
+                          <span className="block truncate text-[11.5px] text-emerald-300/80">
+                            {m.provider} · Connected
                           </span>
                         </span>
                         {selected && (

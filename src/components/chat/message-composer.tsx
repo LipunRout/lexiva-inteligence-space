@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { ModelSelector } from './model-selector';
+import { ACCEPT, MAX_FILES, MAX_TOTAL_CHARS, formatSize, readFiles, type PickedFile } from './attachments';
 
 export function MessageComposer({
   modelId,
@@ -11,12 +12,14 @@ export function MessageComposer({
 }: {
   modelId: string;
   onModelChange: (id: string) => void;
-  onSend: (text: string) => void;
+  onSend: (text: string, files?: PickedFile[]) => void;
   disabled?: boolean;
 }) {
   const [value, setValue] = useState('');
-  const [note, setNote] = useState(false);
+  const [files, setFiles] = useState<PickedFile[]>([]);
+  const [note, setNote] = useState<string | null>(null);
   const ref = useRef<HTMLTextAreaElement>(null);
+  const picker = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const el = ref.current;
@@ -27,21 +30,80 @@ export function MessageComposer({
 
   useEffect(() => {
     if (!note) return;
-    const t = window.setTimeout(() => setNote(false), 4000);
+    const t = window.setTimeout(() => setNote(null), 6000);
     return () => window.clearTimeout(t);
   }, [note]);
 
-  function submit() {
-    if (!value.trim() || disabled) return;
-    onSend(value);
-    setValue('');
+  async function onPick(e: React.ChangeEvent<HTMLInputElement>) {
+    const picked = Array.from(e.target.files ?? []);
+    e.target.value = '';
+    if (!picked.length) return;
+
+    const room = MAX_FILES - files.length;
+    if (room <= 0) {
+      setNote(`You can attach up to ${MAX_FILES} files per message.`);
+      return;
+    }
+
+    const { files: ok, errors } = await readFiles(picked.slice(0, room));
+    const messages = [...errors];
+    if (picked.length > room) messages.push(`Only ${MAX_FILES} files per message.`);
+
+    const used = files.reduce((n, f) => n + f.text.length, 0);
+    const accepted: PickedFile[] = [];
+    let total = used;
+    for (const f of ok) {
+      if (total + f.text.length > MAX_TOTAL_CHARS) {
+        messages.push(`${f.name} would exceed the total size limit.`);
+        continue;
+      }
+      total += f.text.length;
+      accepted.push(f);
+    }
+
+    if (accepted.length) setFiles((cur) => [...cur, ...accepted]);
+    if (messages.length) setNote(messages.join(' '));
   }
 
-  const ready = !!value.trim() && !disabled;
+  function submit() {
+    if ((!value.trim() && files.length === 0) || disabled) return;
+    onSend(value, files);
+    setValue('');
+    setFiles([]);
+  }
+
+  const ready = (!!value.trim() || files.length > 0) && !disabled;
 
   return (
     <div className="w-full">
       <div className="rounded-[24px] border border-white/[0.065] bg-[#18181c] px-[18px] pb-4 pt-5 shadow-[0_20px_45px_-15px_rgba(0,0,0,0.45),0_1px_0_0_rgba(255,255,255,0.05)_inset] transition-colors focus-within:border-white/[0.14]">
+        {files.length > 0 && (
+          <ul className="mb-3 flex flex-wrap gap-1.5" aria-label="Files to send">
+            {files.map((f, i) => (
+              <li
+                key={f.name + i}
+                className="inline-flex max-w-[240px] items-center gap-1.5 rounded-lg border border-white/[0.1] bg-white/[0.05] py-1 pl-2.5 pr-1 text-[12.5px] text-[#f4f4f6]"
+              >
+                <svg viewBox="0 0 16 16" fill="none" className="h-3.5 w-3.5 shrink-0 text-[#9e9da6]" aria-hidden="true">
+                  <path d="M4 1.8h5l3 3v9.4H4V1.8Z M9 1.8v3h3" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" />
+                </svg>
+                <span className="truncate">{f.name}</span>
+                <span className="shrink-0 text-[#8e8d95]">{formatSize(f.size)}</span>
+                <button
+                  type="button"
+                  onClick={() => setFiles((cur) => cur.filter((_, j) => j !== i))}
+                  aria-label={`Remove ${f.name}`}
+                  className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-[#9e9da6] hover:bg-white/10 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/60"
+                >
+                  <svg viewBox="0 0 16 16" fill="none" className="h-3 w-3" aria-hidden="true">
+                    <path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+                  </svg>
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+
         <label htmlFor="chat-input" className="sr-only">Message</label>
         <textarea
           id="chat-input"
@@ -55,18 +117,30 @@ export function MessageComposer({
               submit();
             }
           }}
-          placeholder="Ask anything..."
+          placeholder={files.length ? 'Add a message about your files...' : 'Ask anything...'}
           className="mb-4 max-h-[180px] min-h-[28px] w-full resize-none bg-transparent px-0.5 text-[16px] leading-6 tracking-[-0.011em] text-[#f4f4f6] outline-none placeholder:text-[#8c8b93]"
         />
 
         <div className="flex items-center justify-between gap-2">
           <div className="flex min-w-0 items-center gap-2">
-            {/* Expanding "Add files" pill (preview only) */}
+            <input
+              ref={picker}
+              type="file"
+              multiple
+              accept={ACCEPT}
+              onChange={onPick}
+              className="hidden"
+              aria-label="Choose files to attach"
+              tabIndex={-1}
+            />
+
+            {/* Expanding "Add files" pill */}
             <button
               type="button"
-              onClick={() => setNote(true)}
-              aria-label="Add files (preview only)"
-              className="group/add inline-flex h-[38px] w-[38px] shrink-0 items-center overflow-hidden rounded-full border border-white/[0.095] bg-[#26262c] px-[10px] text-[#f4f4f6] shadow-[0_1px_0_0_rgba(255,255,255,0.05)_inset] transition-[width,background-color] duration-300 hover:w-[112px] hover:bg-[#2d2d34] focus-visible:w-[112px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/60"
+              onClick={() => picker.current?.click()}
+              disabled={disabled}
+              aria-label="Add files"
+              className="group/add inline-flex h-[38px] w-[38px] shrink-0 items-center overflow-hidden rounded-full border border-white/[0.095] bg-[#26262c] px-[10px] text-[#f4f4f6] shadow-[0_1px_0_0_rgba(255,255,255,0.05)_inset] transition-[width,background-color] duration-300 hover:w-[112px] hover:bg-[#2d2d34] focus-visible:w-[112px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/60 disabled:opacity-60"
             >
               <svg viewBox="0 0 16 16" fill="none" className="h-4 w-4 shrink-0" aria-hidden="true">
                 <path d="M8 2.5V13.5M2.5 8H13.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
@@ -98,9 +172,7 @@ export function MessageComposer({
       </div>
 
       <p role="status" className="mt-2 min-h-[16px] px-2 text-center text-[11.5px] leading-4 text-[#6e6d76]">
-        {note
-          ? 'Attachments are a UI preview only. Files are not read or uploaded.'
-          : 'Prototype: no AI model is connected. Messages stay in this browser.'}
+        {note ?? 'Replies come from the model you select and can be wrong. Text and code files can be attached.'}
       </p>
     </div>
   );

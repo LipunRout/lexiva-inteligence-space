@@ -4,6 +4,7 @@ import React, { useEffect, useRef } from 'react';
 import type { Conversation } from './types';
 import { getModel } from './data';
 import { AIMessage, TypingRow, UserMessage } from './messages';
+import { AttachmentChips } from './attachment-chips';
 
 export function ConversationView({
   conversation,
@@ -19,14 +20,26 @@ export function ConversationView({
   onDeleteMessage: (id: string) => void;
 }) {
   const box = useRef<HTMLDivElement>(null);
+  const prevCount = useRef(0);
   const count = conversation.messages.length;
   const model = getModel(conversation.modelId);
-
-  useEffect(() => {
-    box.current?.scrollTo({ top: box.current.scrollHeight, behavior: 'smooth' });
-  }, [count, pending, conversation.id]);
-
   const last = conversation.messages[count - 1];
+  const tail = last?.content.length ?? 0;
+
+  // Follow new messages and streaming text, unless the reader has scrolled up.
+  useEffect(() => {
+    const el = box.current;
+    if (!el) return;
+    const added = count !== prevCount.current;
+    prevCount.current = count;
+    const nearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 200;
+    if (added || nearBottom) {
+      el.scrollTo({ top: el.scrollHeight, behavior: added ? 'smooth' : 'auto' });
+    }
+  }, [count, pending, conversation.id, tail]);
+
+  // Dots only while waiting for the first token
+  const showTyping = pending && last?.role === 'user';
 
   return (
     <div ref={box} className="h-full overflow-y-auto">
@@ -39,13 +52,16 @@ export function ConversationView({
 
         {conversation.messages.map((m) =>
           m.role === 'user' ? (
-            <UserMessage key={m.id} message={m} />
+            <div key={m.id} className="space-y-1.5">
+              {m.attachments && m.attachments.length > 0 && <AttachmentChips items={m.attachments} />}
+              <UserMessage message={m} />
+            </div>
           ) : (
             <AIMessage
               key={m.id}
               message={m}
               model={getModel(m.modelId ?? conversation.modelId)}
-              canRegenerate={m.id === last?.id && m.kind === 'notice' && !pending}
+              canRegenerate={m.id === last?.id && m.kind !== 'sample' && !pending}
               onRegenerate={onRegenerate}
               onFeedback={(v) => onFeedback(m.id, v)}
               onDelete={() => onDeleteMessage(m.id)}
@@ -53,7 +69,7 @@ export function ConversationView({
           )
         )}
 
-        {pending && <TypingRow model={model} />}
+        {showTyping && <TypingRow model={model} />}
       </div>
     </div>
   );

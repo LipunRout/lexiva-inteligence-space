@@ -1,5 +1,6 @@
 import type { Conversation, ModelGroup, ModelInfo } from './types';
 
+// Static "planned" list, kept only so older imports keep working.
 export const MODELS: ModelInfo[] = [
   { id: 'gpt', name: 'GPT', provider: 'OpenAI', group: 'OpenAI', description: 'General-purpose writing and reasoning.', color: '#34d399', status: 'planned' },
   { id: 'claude', name: 'Claude', provider: 'Anthropic', group: 'Anthropic', description: 'Long-form writing, analysis and code.', color: '#fb923c', status: 'planned' },
@@ -11,9 +12,60 @@ export const MODELS: ModelInfo[] = [
 
 export const GROUP_ORDER: ModelGroup[] = ['OpenAI', 'Anthropic', 'Google', 'Meta', 'Other'];
 
-export const getModel = (id: string): ModelInfo => MODELS.find((m) => m.id === id) ?? MODELS[0];
+// ---- Live models (loaded from /api/models) ----
 
-export const DEFAULT_MODEL = 'claude';
+export interface ApiModel {
+  id: string;
+  provider: string;
+  apiModel: string;
+  label: string;
+}
+
+const PROVIDERS: Record<string, { name: string; color: string }> = {
+  gemini: { name: 'Google', color: '#6F73F7' },
+  groq: { name: 'Groq', color: '#f97316' },
+  openrouter: { name: 'OpenRouter', color: '#a78bfa' },
+  mistral: { name: 'Mistral AI', color: '#facc15' },
+  cohere: { name: 'Cohere', color: '#34d399' },
+  cerebras: { name: 'Cerebras', color: '#38bdf8' },
+};
+
+let live: ModelInfo[] = [];
+export const setLiveModels = (list: ModelInfo[]) => {
+  live = list;
+};
+
+export function liveModelFrom(m: ApiModel): ModelInfo {
+  const meta = PROVIDERS[m.provider];
+  return {
+    id: m.id,
+    name: m.label,
+    provider: meta?.name ?? m.provider,
+    group: 'Other',
+    description: `${m.apiModel} via ${meta?.name ?? m.provider}`,
+    color: meta?.color ?? '#8e8d95',
+    status: 'connected',
+  };
+}
+
+function fallbackModel(id: string): ModelInfo {
+  const [provider, ...rest] = id.split(':');
+  const hasProvider = rest.length > 0;
+  return {
+    id,
+    name: (hasProvider ? rest.join(':') : provider) || 'No model',
+    provider: hasProvider ? PROVIDERS[provider]?.name ?? provider : '',
+    group: 'Other',
+    description: '',
+    color: PROVIDERS[provider]?.color ?? '#8e8d95',
+    status: 'unavailable',
+  };
+}
+
+export const getModel = (id: string): ModelInfo =>
+  live.find((m) => m.id === id) ?? MODELS.find((m) => m.id === id) ?? fallbackModel(id);
+
+export const DEFAULT_MODEL = '';
 
 export const SUGGESTIONS = [
   { icon: '✦', title: 'Explain a complex concept', text: 'Explain how neural networks learn, in simple terms.' },
@@ -30,102 +82,17 @@ export function titleFrom(text: string) {
 export function noticeFor(modelId: string) {
   const m = getModel(modelId);
   return [
-    '**No AI model is connected yet.**',
+    '**No model is available.**',
     '',
-    'Your message stayed in this browser and was not sent anywhere.',
-    '',
-    `- Selected model: **${m.name}** (${m.provider}), planned`,
-    '- Once a provider is connected, replies will appear here with the real model name',
-    '- Conversations reset when you refresh this page',
+    `- Selected: **${m.name}**`,
+    '- Add at least one provider API key to `.env.local`, then restart the server',
   ].join('\n');
 }
+
+// Samples were removed: conversations now load from your account.
+export const seedConversations = (): Conversation[] => [];
 
 const DAY = 86_400_000;
-
-export function seedConversations(): Conversation[] {
-  const now = Date.now();
-  const code = [
-    '```ts',
-    '// Sample code block with a copy button',
-    'async function ask(prompt: string) {',
-    '  const res = await fetch("/api/chat", {',
-    '    method: "POST",',
-    '    body: JSON.stringify({ prompt }),',
-    '  });',
-    '  return res.json();',
-    '}',
-    '```',
-  ].join('\n');
-
-  return [
-    {
-      id: 'sample-1',
-      title: 'Sample: formatting preview',
-      modelId: 'claude',
-      updatedAt: now - 20 * 60_000,
-      sample: true,
-      messages: [
-        { id: 's1a', role: 'user', content: 'Show me how lists and code look in this workspace.', createdAt: now - 21 * 60_000 },
-        {
-          id: 's1b',
-          role: 'assistant',
-          kind: 'sample',
-          modelId: 'claude',
-          createdAt: now - 20 * 60_000,
-          content: [
-            '## Formatting preview',
-            '',
-            'Replies support **bold text**, `inline code`, lists and code blocks:',
-            '',
-            '- Clear attribution above every reply',
-            '- Copy, regenerate and feedback actions',
-            '- Code blocks with a copy button',
-            '',
-            code,
-            '',
-            'This text was written by hand to show the layout.',
-          ].join('\n'),
-        },
-      ],
-    },
-    {
-      id: 'sample-2',
-      title: 'Sample: comparing two ideas',
-      modelId: 'gpt',
-      updatedAt: now - DAY - 3 * 3_600_000,
-      sample: true,
-      messages: [
-        { id: 's2a', role: 'user', content: 'How would I compare answers from two models?', createdAt: now - DAY - 3 * 3_600_000 },
-        {
-          id: 's2b',
-          role: 'assistant',
-          kind: 'sample',
-          modelId: 'gpt',
-          createdAt: now - DAY - 3 * 3_600_000,
-          content: ['Side-by-side comparison is planned:', '', '1. Send one prompt to several models', '2. See each answer labelled with its model', '3. Keep the one you prefer', '', 'The compare page is disabled until providers are connected.'].join('\n'),
-        },
-      ],
-    },
-    {
-      id: 'sample-3',
-      title: 'Sample: planning a launch',
-      modelId: 'llama',
-      updatedAt: now - 4 * DAY,
-      sample: true,
-      messages: [
-        { id: 's3a', role: 'user', content: 'Help me plan a small product launch.', createdAt: now - 4 * DAY },
-        {
-          id: 's3b',
-          role: 'assistant',
-          kind: 'sample',
-          modelId: 'llama',
-          createdAt: now - 4 * DAY,
-          content: ['### Launch checklist (sample)', '', '- Define one clear audience', '- Write the headline and short pitch', '- Prepare a simple landing page', '- Choose a launch date and share it'].join('\n'),
-        },
-      ],
-    },
-  ];
-}
 
 export function groupConversations(list: Conversation[]) {
   const start = new Date();

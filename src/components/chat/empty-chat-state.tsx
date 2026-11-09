@@ -3,6 +3,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { SuggestedPrompts } from './suggested-prompts';
+import { useModels } from './use-models';
 
 export function EmptyChatState({
   onPick,
@@ -11,6 +12,8 @@ export function EmptyChatState({
   onPick: (text: string) => void;
   children: React.ReactNode;
 }) {
+  const { models, loading } = useModels();
+
   return (
     <div className="flex min-h-full flex-col items-center justify-center px-4 py-10">
       <motion.div
@@ -32,9 +35,11 @@ export function EmptyChatState({
           <SuggestedPrompts onPick={onPick} />
         </div>
 
-        <p className="mx-auto mt-6 max-w-[52ch] rounded-2xl border border-amber-300/20 bg-amber-300/[0.06] px-4 py-3 text-[12.5px] leading-5 text-amber-100/80">
-          This is a prototype. No AI provider is connected, so replies are labelled previews, not model output.
-        </p>
+        {!loading && models.length === 0 && (
+          <p className="mx-auto mt-6 max-w-[52ch] rounded-2xl border border-amber-300/20 bg-amber-300/[0.06] px-4 py-3 text-[12.5px] leading-5 text-amber-100/80">
+            No AI providers are configured yet. Add an API key to <code>.env.local</code> and restart the server.
+          </p>
+        )}
       </motion.div>
     </div>
   );

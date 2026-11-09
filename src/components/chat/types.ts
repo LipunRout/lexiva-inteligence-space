@@ -1,15 +1,22 @@
 export type Role = 'user' | 'assistant';
 
+export interface Attachment {
+  name: string;
+  size: number;
+}
+
 export interface Message {
   id: string;
   role: Role;
   content: string;
   createdAt: number;
-  /** Model that was selected when this reply was produced (assistant only). */
+  /** Model that produced this reply (assistant only). */
   modelId?: string;
-  /** sample = hand-written demo content; notice = local "no model connected" reply. */
+  /** sample = hand-written demo content; notice = Lexiva system notice or error (not model output). */
   kind?: 'sample' | 'notice';
   feedback?: 'up' | 'down';
+  /** Files attached to a user message (names only; the text lives on the server). */
+  attachments?: Attachment[];
 }
 
 export interface Conversation {
@@ -30,6 +37,6 @@ export interface ModelInfo {
   group: ModelGroup;
   description: string;
   color: string;
-  /** Nothing is connected in this prototype, so every model is planned. */
-  status: 'planned' | 'unavailable';
+  /** connected = provider key is configured; planned = roadmap only; unavailable = unknown or removed. */
+  status: 'connected' | 'planned' | 'unavailable';
 }
