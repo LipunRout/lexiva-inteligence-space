@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -14,6 +15,7 @@ export interface AppUser {
 function toUser(u: User): AppUser {
   const meta = (u.user_metadata ?? {}) as Record<string, string | undefined>;
   const email = u.email ?? null;
+
   return {
     id: u.id,
     email,
@@ -28,14 +30,34 @@ export function useUser() {
 
   useEffect(() => {
     const sb = supabaseBrowser();
-    sb.auth.getUser().then(({ data }) => {
-      setUser(data.user ? toUser(data.user) : null);
+    let mounted = true;
+
+    sb.auth.getUser().then(({ data, error }) => {
+      if (!mounted) return;
+
+      if (error) {
+        console.error('Failed to fetch user:', error);
+        setUser(null);
+      } else {
+        setUser(data.user ? toUser(data.user) : null);
+      }
+
       setLoading(false);
     });
-    const { data: sub } = sb.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ? toUser(session.user) : null);
-    });
-    return () => sub.subscription.unsubscribe();
+
+    const { data: sub } = sb.auth.onAuthStateChange(
+      (_event, session) => {
+        if (!mounted) return;
+
+        setUser(session?.user ? toUser(session.user) : null);
+        setLoading(false);
+      }
+    );
+
+    return () => {
+      mounted = false;
+      sub.subscription.unsubscribe();
+    };
   }, []);
 
   return { user, loading };
