@@ -78,15 +78,18 @@ export async function POST(req: Request) {
     if (error) return Response.json({ error: error.message }, { status: 500 });
   }
 
-  // Last 30 messages, oldest first (attached file text is included for every message)
+  // Last 30 messages, oldest first. Consecutive messages with the same role are merged.
   const { data: rows } = await sb.from("messages").select("role, content, attachment_text")
     .eq("conversation_id", conversationId)
     .order("created_at", { ascending: false }).limit(30);
 
-  const history: ChatMessage[] = (rows ?? []).reverse().map((r: any) => ({
-    role: r.role,
-    content: r.attachment_text ? `${r.content}\n\n${r.attachment_text}` : r.content,
-  }));
+  const history: ChatMessage[] = [];
+  for (const r of ((rows ?? []) as any[]).reverse()) {
+    const text = r.attachment_text ? `${r.content}\n\n${r.attachment_text}` : r.content;
+    const prev = history[history.length - 1];
+    if (prev && prev.role === r.role) prev.content += `\n\n${text}`;
+    else history.push({ role: r.role, content: text });
+  }
 
   const enc = new TextEncoder();
   const send = (c: ReadableStreamDefaultController, obj: unknown) => {
@@ -96,14 +99,9 @@ export async function POST(req: Request) {
   const stream = new ReadableStream({
     async start(controller) {
       let full = "";
-      try {
-        send(controller, { type: "meta", conversationId, model });
 
-        for await (const chunk of streamChat(model, history, { signal: req.signal })) {
-          full += chunk;
-          send(controller, { type: "delta", text: chunk });
-        }
-
+      // Saves whatever has been generated so far (also used when the user presses Stop)
+      const save = async () => {
         if (full) {
           await sb.from("messages").insert({
             conversation_id: conversationId, role: "assistant", content: full,
@@ -112,9 +110,20 @@ export async function POST(req: Request) {
         }
         await sb.from("conversations")
           .update({ updated_at: new Date().toISOString() }).eq("id", conversationId);
+      };
 
+      try {
+        send(controller, { type: "meta", conversationId, model });
+
+        for await (const chunk of streamChat(model, history, { signal: req.signal })) {
+          full += chunk;
+          send(controller, { type: "delta", text: chunk });
+        }
+
+        await save();
         send(controller, { type: "done" });
       } catch (e: any) {
+        await save().catch(() => {});
         if (!req.signal.aborted) send(controller, { type: "error", message: e?.message ?? "Provider error" });
       } finally {
         try { controller.close(); } catch {}

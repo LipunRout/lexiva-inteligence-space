@@ -19,6 +19,8 @@ interface Props {
   onNew: () => void;
   onRename: (id: string, title: string) => void;
   onDelete: (id: string) => void;
+  user?: { name?: string; email?: string | null; avatarUrl?: string | null } | null;
+  userLoading?: boolean;
 }
 
 const NAV = [
@@ -108,6 +110,8 @@ function Content({
   onNew,
   onRename,
   onDelete,
+  user,
+  userLoading,
 }: Omit<Props, 'open' | 'drawerOpen' | 'onCloseDrawer'>) {
   const [query, setQuery] = useState('');
 
@@ -205,13 +209,45 @@ function Content({
       </div>
 
       <div className="flex items-center gap-2 border-t border-white/[0.06] p-3">
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#26262c] text-[13px] font-bold text-[#f4f4f6] ring-1 ring-white/[0.095]" aria-hidden="true">
-          G
-        </span>
-        <span className="min-w-0 flex-1">
-          <span className="block truncate text-[13.5px] font-semibold text-[#f4f4f6]">Guest</span>
-          <span className="block truncate text-[11.5px] text-[#6e6d76]">Not signed in</span>
-        </span>
+        {userLoading ? (
+          <>
+            <span className="h-9 w-9 shrink-0 animate-pulse rounded-full bg-white/10" aria-hidden="true" />
+            <span className="min-w-0 flex-1 space-y-2" aria-label="Loading account">
+              <span className="block h-3 w-20 animate-pulse rounded bg-white/10" />
+              <span className="block h-2.5 w-28 animate-pulse rounded bg-white/[0.07]" />
+            </span>
+          </>
+        ) : (
+          <>
+            {user?.avatarUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={user.avatarUrl}
+                alt=""
+                className="h-9 w-9 shrink-0 rounded-full object-cover ring-1 ring-white/[0.095]"
+                referrerPolicy="no-referrer"
+              />
+            ) : (
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#26262c] text-[13px] font-bold text-[#f4f4f6] ring-1 ring-white/[0.095]" aria-hidden="true">
+                {(user?.name || user?.email || 'G').charAt(0).toUpperCase()}
+              </span>
+            )}
+            <span className="min-w-0 flex-1">
+              <span className="block truncate text-[13.5px] font-semibold text-[#f4f4f6]">{user?.name || user?.email || 'Guest'}</span>
+              <span className="block truncate text-[11.5px] text-[#6e6d76]">{user?.email || 'Not signed in'}</span>
+            </span>
+            {user && (
+              <form action="/auth/signout" method="post">
+                <button
+                  type="submit"
+                  className="rounded-full px-3 py-1.5 text-[12px] font-medium text-[#9e9da6] hover:bg-white/[0.07] hover:text-[#f4f4f6] focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/60"
+                >
+                  Sign out
+                </button>
+              </form>
+            )}
+          </>
+        )}
         <ThemeToggle />
       </div>
     </div>

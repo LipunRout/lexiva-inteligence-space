@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import type { ModelInfo } from './types';
+import { UserMenu } from './user-menu';
 
 const icon = { viewBox: '0 0 20 20', fill: 'none', stroke: 'currentColor', strokeWidth: 1.8, strokeLinecap: 'round' as const, className: 'h-[18px] w-[18px]', 'aria-hidden': true };
 
@@ -57,6 +58,10 @@ export function ChatHeader({
       <button type="button" onClick={onNewChat} aria-label="New chat" className={btn}>
         <svg {...icon}><path d="M10 4v12M4 10h12" /></svg>
       </button>
+
+      <div className="ml-1">
+        <UserMenu />
+      </div>
     </header>
   );
 }

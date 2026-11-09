@@ -5,6 +5,7 @@ import type { Attachment, Conversation, Message } from './types';
 import { DEFAULT_MODEL, titleFrom } from './data';
 import { useModels } from './use-models';
 import type { PickedFile } from './attachments';
+import { STOP_EVENT } from './chat-events';
 
 const uid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
 
@@ -80,6 +81,13 @@ export function useChatStore() {
       setDraftModelId(models[0].id);
     }
   }, [models, draftModelId]);
+
+  // Stop button / Esc: abort the running reply (the partial text is kept)
+  useEffect(() => {
+    const onStop = () => abort.current?.abort();
+    window.addEventListener(STOP_EVENT, onStop);
+    return () => window.removeEventListener(STOP_EVENT, onStop);
+  }, []);
 
   // Stop any running stream on unmount
   useEffect(() => () => abort.current?.abort(), []);
@@ -219,6 +227,10 @@ export function useChatStore() {
     void run(convoId, modelId, { content: t, attachments: files.length ? files : undefined });
   }
 
+  function stop() {
+    abort.current?.abort();
+  }
+
   function regenerate() {
     if (!active || pending || busy.current) return;
     const last = active.messages[active.messages.length - 1];
@@ -283,6 +295,7 @@ export function useChatStore() {
     select: setActiveId,
     newChat: () => setActiveId(null),
     send,
+    stop,
     regenerate,
     setModel,
     rename,

@@ -8,9 +8,11 @@ import { ConversationView } from './conversation-view';
 import { EmptyChatState } from './empty-chat-state';
 import { MessageComposer } from './message-composer';
 import { getModel } from './data';
+import { useUser } from './use-user';
 
 export function ChatLayout() {
   const chat = useChatStore();
+  const { user, loading: userLoading } = useUser();
   const [ready, setReady] = useState(false);
   const [desktopOpen, setDesktopOpen] = useState(true);
   const [drawer, setDrawer] = useState(false);
@@ -48,6 +50,8 @@ export function ChatLayout() {
         onNew={chat.newChat}
         onRename={chat.rename}
         onDelete={chat.remove}
+        user={user}
+        userLoading={userLoading}
       />
 
       <div className="relative flex min-w-0 flex-1 flex-col">
