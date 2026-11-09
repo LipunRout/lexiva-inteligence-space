@@ -1,0 +1,55 @@
+                    LEXIVA
+                      │
+                      │ Provider Credentials
+                      │ configured by you
+                      ▼
+             ┌──────────────────┐
+             │ Provider Registry│
+             └────────┬─────────┘
+                      │
+       ┌──────────────┼──────────────┐
+       ▼              ▼              ▼
+    Gemini           Groq        OpenRouter
+     API Key        API Key        API Key
+       │              │              │
+       ▼              ▼              ▼
+   Models           Models         Models
+       │              │              │
+       └──────────────┼──────────────┘
+                      │
+                      ▼
+               Model Registry
+                      │
+                      ▼
+              Lexiva Model Selector
+                      │
+                 USER CHOOSES
+                      │
+                      ▼
+                Send Message
+                      │
+                      ▼
+                Lexiva Backend
+                      │
+          ┌───────────┴───────────┐
+          │ Determine Provider    │
+          │ from selected model   │
+          └───────────┬───────────┘
+                      │
+                      ▼
+              Provider Adapter
+                      │
+                      ▼
+              Provider API
+                      │
+                      ▼
+                  Response
+                      │
+                      ▼
+              Lexiva Backend
+                      │
+                      ▼
+                 Chat UI
+                      │
+                      ▼
+              User sees response

@@ -3,6 +3,7 @@ import { Suspense } from 'react';
 import { HeaderNav } from '@/components/ui/nav';
 import { SiteFooter } from '@/components/ui/site-footer';
 import { RouteProgress } from '@/components/ui/route-progress';
+import { ChromeGate } from '@/components/ui/chrome-gate';
 import './globals.scss';
 import './tailwind.css';
 
@@ -18,7 +19,6 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-// Runs before first paint so there is no flash of the wrong theme.
 const THEME_SCRIPT = `(function(){try{var t=localStorage.getItem('lexiva-theme');document.documentElement.dataset.theme=t==='light'?'light':'dark'}catch(e){document.documentElement.dataset.theme='dark'}})();`;
 
 export default function RootLayout({
@@ -35,9 +35,13 @@ export default function RootLayout({
         <Suspense fallback={null}>
           <RouteProgress />
         </Suspense>
-        <HeaderNav />
+        <ChromeGate>
+          <HeaderNav />
+        </ChromeGate>
         {children}
-        <SiteFooter />
+        <ChromeGate>
+          <SiteFooter />
+        </ChromeGate>
       </body>
     </html>
   );

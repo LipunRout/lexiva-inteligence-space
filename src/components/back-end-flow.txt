@@ -1,0 +1,17 @@
+backend/
+└── ai/
+    ├── providers/
+    │   ├── gemini/
+    │   │   └── gemini-provider.ts
+    │   ├── groq/
+    │   │   └── groq-provider.ts
+    │   ├── openrouter/
+    │   │   └── openrouter-provider.ts
+    │   ├── mistral/
+    │   │   └── mistral-provider.ts
+    │   └── ...
+    │
+    ├── provider-registry.ts
+    ├── model-registry.ts
+    ├── ai-router.ts
+    └── ai-types.ts
