@@ -21,7 +21,7 @@ export function ChatLayout() {
   useEffect(() => setReady(true), []);
 
   if (!ready) {
-    return <div aria-busy="true" className="h-dvh w-full bg-[#121215]" />;
+    return <div aria-busy="true" className="h-[calc(100dvh-env(safe-area-inset-top))] w-full bg-[#121215]" />;
   }
 
   const convo = chat.active;
@@ -39,7 +39,7 @@ export function ChatLayout() {
   );
 
   return (
-    <div className="relative flex h-dvh w-full overflow-hidden bg-[#121215] text-[#f4f4f6]">
+    <div className="relative flex h-[calc(100dvh-env(safe-area-inset-top))] w-full overflow-hidden bg-[#121215] text-[#f4f4f6]">
       <ChatSidebar
         conversations={chat.conversations}
         activeId={chat.activeId}

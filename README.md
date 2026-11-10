@@ -22,10 +22,19 @@ The long-term product should make it easy to select a supported model, start and
 - `/models` — Provider setup and status. No provider is connected or advertised as available.
 - `/compare` — Comparison layout preview. It does not generate sample or model responses.
 - `/history` — Conversation history empty state. Messages are not persisted.
+- `/login` — Supabase sign-in with OAuth and email OTP verification.
 
 The application does **not** connect to AI provider APIs or provide real model responses. These pages communicate the intended product structure, not completed AI features.
 
 Treat the Lexiva AI workspace as the product goal, not an already implemented feature. Before adding providers, inspect the source and agree on supported models and server-side environment configuration.
+
+## Email sign-in
+
+The login page requests a Supabase email sign-in link and sends it back through `/auth/callback`. This works with Supabase's default email template; no custom SMTP setup is needed for testing with an authorized team address. Supabase's default mailer is restricted to authorized team addresses and rate-limited.
+
+The default template is a magic link, not a four-digit code. To send numeric OTP codes instead, configure custom SMTP in Supabase so the email template can be edited, update the Magic Link / OTP template to display `{{ .Token }}`, and configure the Email provider's OTP length. Keep OTP expiry short and rate limits enabled.
+
+The project uses the public Supabase URL and publishable/anon key in the frontend; do not put SMTP credentials or Supabase service-role keys in `NEXT_PUBLIC_*` variables.
 
 ## Project structure
 
@@ -37,6 +46,11 @@ Treat the Lexiva AI workspace as the product goal, not an already implemented fe
 | `src/app/models/page.tsx` | Provider status and secure setup guidance |
 | `src/app/compare/page.tsx` | Model-comparison preview, disabled until providers exist |
 | `src/app/history/page.tsx` | Conversation-history empty state; no persistence |
+| `src/app/manifest.ts` | PWA web app manifest for installable Lexiva |
+| `src/app/sw.ts` | Serwist service worker, static asset caching, and offline navigation fallback |
+| `src/app/offline/page.tsx` | Branded offline fallback page |
+| `public/icons/` | PWA launcher icons derived from the existing Lexiva mark |
+| `next.config.mjs` | Next.js configuration with production Serwist integration |
 | `src/app/globals.scss` | Global resets, typography hooks, focus treatment, and shared styles |
 | `src/app/tailwind.css` | Tailwind base, components, and utilities |
 | `package.json` | Project name, scripts, and dependency manifest |
@@ -65,6 +79,8 @@ Treat the Lexiva AI workspace as the product goal, not an already implemented fe
 - Start the development server with `npm run dev`.
 - Create and type-check a production build with `npm run build`.
 - Run the configured linter with `npm run lint`.
+
+The production build includes a Serwist service worker and installable web app manifest. Service-worker registration is disabled in development; production caching is limited to static assets and does not cache `/api/` responses. Installation requires HTTPS in deployed environments (localhost is supported for development).
 
 The email sign-up currently provides client-side feedback only; it is not connected to an API or mailing-list service. Do not imply that an account or subscription was actually created.
 

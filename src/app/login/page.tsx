@@ -14,8 +14,6 @@ function LoginForm() {
   const next = safeNext(params.get('next'));
 
   const [email, setEmail] = useState('');
-  const [code, setCode] = useState('');
-  const [step, setStep] = useState<'email' | 'code'>('email');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(
     params.get('error') ? 'Sign-in failed. Please try again.' : null
@@ -33,33 +31,20 @@ function LoginForm() {
     if (error) setError(error.message);
   }
 
-  async function sendCode(e: FormEvent) {
+  async function sendSignInLink(e: FormEvent) {
     e.preventDefault();
     setBusy(true);
     setError(null);
     const { error } = await supabaseBrowser().auth.signInWithOtp({
       email: email.trim(),
-      options: { shouldCreateUser: true },
+      options: {
+        shouldCreateUser: true,
+        emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
+      },
     });
     setBusy(false);
     if (error) return setError(error.message);
-    setStep('code');
-    setInfo(`We sent a code to ${email.trim()}.`);
-  }
-
-  async function verify(e: FormEvent) {
-    e.preventDefault();
-    setBusy(true);
-    setError(null);
-    const { error } = await supabaseBrowser().auth.verifyOtp({
-      email: email.trim(),
-      token: code.trim(),
-      type: 'email',
-    });
-    setBusy(false);
-    if (error) return setError(error.message);
-    router.replace(next);
-    router.refresh();
+    setInfo(`We sent a sign-in link to ${email.trim()}. Open it in this browser to continue.`);
   }
 
   const btn =
@@ -71,7 +56,7 @@ function LoginForm() {
     <main className="mx-auto flex min-h-[80dvh] w-full max-w-sm items-center px-4 py-16">
       <div className="w-full rounded-[24px] border border-white/[0.08] bg-[#18181c] p-6 text-[#f4f4f6] shadow-[0_20px_45px_-15px_rgba(0,0,0,0.5)]">
         <h1 className="text-xl font-semibold tracking-tight">Sign in to Lexiva</h1>
-        <p className="mt-1 text-sm text-[#8e8d95]">Your chats are saved to your account.</p>
+        <p className="mt-1 text-sm text-[#8e8d95]">Sign in securely with a link sent to your email.</p>
 
         <div className="mt-6 flex flex-col gap-2.5">
           <button type="button" className={btn} onClick={() => oauth('google')}>Continue with Google</button>
@@ -82,29 +67,14 @@ function LoginForm() {
           <span className="h-px flex-1 bg-white/10" /> or <span className="h-px flex-1 bg-white/10" />
         </div>
 
-        {step === 'email' ? (
-          <form onSubmit={sendCode} className="flex flex-col gap-2.5">
-            <label htmlFor="email" className="sr-only">Email</label>
-            <input id="email" type="email" required autoComplete="email" placeholder="you@example.com"
-              value={email} onChange={(e) => setEmail(e.target.value)} className={input} />
-            <button type="submit" disabled={busy || !email.trim()} className={btn}>
-              {busy ? 'Sending...' : 'Email me a code'}
-            </button>
-          </form>
-        ) : (
-          <form onSubmit={verify} className="flex flex-col gap-2.5">
-            <label htmlFor="code" className="sr-only">Code</label>
-            <input id="code" inputMode="numeric" autoComplete="one-time-code" required placeholder="Enter the code"
-              value={code} onChange={(e) => setCode(e.target.value)} className={input} />
-            <button type="submit" disabled={busy || !code.trim()} className={btn}>
-              {busy ? 'Verifying...' : 'Verify and sign in'}
-            </button>
-            <button type="button" onClick={() => { setStep('email'); setCode(''); setInfo(null); }}
-              className="text-sm text-[#8e8d95] hover:text-[#f4f4f6]">
-              Use a different email
-            </button>
-          </form>
-        )}
+        <form onSubmit={sendSignInLink} className="flex flex-col gap-2.5">
+          <label htmlFor="email" className="sr-only">Email</label>
+          <input id="email" type="email" required autoComplete="email" placeholder="you@example.com"
+            value={email} onChange={(e) => setEmail(e.target.value)} className={input} />
+          <button type="submit" disabled={busy || !email.trim()} className={btn}>
+            {busy ? 'Sending...' : 'Email me a sign-in link'}
+          </button>
+        </form>
 
         <p role="status" className="mt-4 min-h-[20px] text-sm">
           {error ? <span className="text-red-400">{error}</span> : info ? <span className="text-[#8e8d95]">{info}</span> : null}

@@ -19,6 +19,7 @@ html {
 
 body {
   overflow-x: hidden;
+  padding-top: env(safe-area-inset-top);
 }
 
 /* Light theme: invert the page, then flip media back so it keeps its real colours */
