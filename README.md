@@ -19,7 +19,7 @@ The long-term product should make it easy to select a supported model, start and
 
 - `/` — Lexiva overview and product workflow.
 - `/chat` — Local-only chat UI preview. Messages are not sent to an AI service.
-- `/models` — Provider setup and status. No provider is connected or advertised as available.
+- `/models` — Searchable model directory populated by the server-side provider configuration; empty-state setup guidance appears when no models are returned.
 - `/compare` — Comparison layout preview. It does not generate sample or model responses.
 - `/history` — Conversation history empty state. Messages are not persisted.
 - `/login` — Supabase sign-in with OAuth and email OTP verification.
@@ -43,7 +43,7 @@ The project uses the public Supabase URL and publishable/anon key in the fronten
 | `src/app/page.tsx` | Homepage composition: hero, intelligence, perspectives, workspace previews, and getting started |
 | `src/app/layout.tsx` | Root document, metadata, and global style imports |
 | `src/app/chat/page.tsx` | Local-only AI chat workspace preview |
-| `src/app/models/page.tsx` | Provider status and secure setup guidance |
+| `src/app/models/page.tsx` | Searchable directory of models returned by configured providers, with secure setup guidance |
 | `src/app/compare/page.tsx` | Model-comparison preview, disabled until providers exist |
 | `src/app/history/page.tsx` | Conversation-history empty state; no persistence |
 | `src/app/manifest.ts` | PWA web app manifest for installable Lexiva |

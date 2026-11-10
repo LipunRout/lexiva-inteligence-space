@@ -10,13 +10,14 @@ let inflight: Promise<ModelInfo[]> | null = null;
 function load(): Promise<ModelInfo[]> {
   if (cache) return Promise.resolve(cache);
   inflight ??= fetch('/api/models')
-    .then((r) => r.json())
-    .then((d: { models: ApiModel[] }) => {
-      cache = d.models.map(liveModelFrom);
+    .then(async (response) => {
+      if (!response.ok) throw new Error('The model service returned an error.');
+      const data: { models?: ApiModel[] } = await response.json();
+      if (!Array.isArray(data.models)) throw new Error('The model service returned an invalid response.');
+      cache = data.models.map(liveModelFrom);
       setLiveModels(cache);
       return cache;
     })
-    .catch(() => [] as ModelInfo[])
     .finally(() => {
       inflight = null;
     });
@@ -26,6 +27,7 @@ function load(): Promise<ModelInfo[]> {
 export function useModels() {
   const [models, setModels] = useState<ModelInfo[]>(cache ?? []);
   const [loading, setLoading] = useState(!cache);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let on = true;
@@ -34,11 +36,16 @@ export function useModels() {
         setModels(list);
         setLoading(false);
       }
+    }).catch((cause: unknown) => {
+      if (on) {
+        setError(cause instanceof Error ? cause.message : 'Unable to load models. Please try again.');
+        setLoading(false);
+      }
     });
     return () => {
       on = false;
     };
   }, []);
 
-  return { models, loading };
+  return { models, loading, error };
 }
