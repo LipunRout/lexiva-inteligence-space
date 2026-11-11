@@ -51,10 +51,10 @@ Resend delivery is configured in Supabase, not in the browser or application cod
 | --- | --- |
 | `src/app/page.tsx` | Homepage composition: hero, intelligence, perspectives, workspace previews, and getting started |
 | `src/app/layout.tsx` | Root document, metadata, and global style imports |
-| `src/app/chat/page.tsx` | Local-only AI chat workspace preview |
+| `src/app/chat/page.tsx` | Authenticated provider-backed chat with account-scoped conversation history |
 | `src/app/models/page.tsx` | Searchable directory of models returned by configured providers, with secure setup guidance |
-| `src/app/compare/page.tsx` | Model-comparison preview, disabled until providers exist |
-| `src/app/history/page.tsx` | Conversation-history empty state; no persistence |
+| `src/app/compare/page.tsx` | Comparison preview; its interface is currently disabled |
+| `src/app/history/page.tsx` | Informational history preview; saved conversations are accessible from the Chat sidebar |
 | `src/app/manifest.ts` | PWA web app manifest for installable Lexiva |
 | `src/app/sw.ts` | Serwist service worker, static asset caching, and offline navigation fallback |
 | `src/app/offline/page.tsx` | Branded offline fallback page |
@@ -70,6 +70,7 @@ Resend delivery is configured in Supabase, not in the browser or application cod
 | `src/components/sections/workspaces.tsx` | Interactive conversation, models, and history preview tabs |
 | `src/components/sections/get-started.tsx` | Homepage links to current local product previews |
 | `src/components/ui/product-ui.tsx` | Shared page intro, prototype notice, and empty-state components |
+| `src/components/ui/ask-lexiva.tsx` | Curated homepage product guide with answers reflecting current features and limitations |
 | `public/lexiva-mark.png` | Current Lexiva symbol used in shared navigation, footer, and browser icons |
 | `src/app/icon.png` | Square Lexiva favicon generated from the supplied transparent logo |
 | `src/components/ui/button.tsx` | Reusable button and button-link variants |

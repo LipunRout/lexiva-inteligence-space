@@ -15,65 +15,106 @@ type Msg = {
 const SUGGESTIONS = [
   'What is Lexiva?',
   'Which models are available?',
-  'How will comparison work?',
+  'What happens if a model fails?',
   'Are my chats saved?',
-  'Can I upload files?',
-  'How are API keys handled?',
-  'What is coming next?',
+  'What files can I attach?',
+  'Can I compare models?',
+  'How does email sign-in work?',
+  'Can I use voice input?',
 ];
 
 const KB: { keys: string[]; text: string; link?: { label: string; href: string } }[] = [
   {
-    keys: ['what is lexiva', 'about lexiva', 'what is this', 'who are you', 'what are you'],
-    text: 'Lexiva is an intelligence space for AI conversations: one place to explore, compare and work with multiple AI models. Right now it is a prototype, so the pages show the product structure rather than live AI.',
-    link: { label: 'Open chat preview', href: '/chat' },
+    keys: ['what is lexiva', 'about lexiva', 'what is this', 'what does lexiva do'],
+    text: 'Lexiva is a multi-model AI chat workspace. Sign in, choose a model available to this deployment, and start a conversation. Chat replies come from the selected provider; model availability depends on the server configuration and each provider’s service.',
+    link: { label: 'Open Lexiva Chat', href: '/chat' },
   },
   {
-    keys: ['model', 'provider', 'gpt', 'claude', 'gemini', 'groq', 'available'],
-    text: 'No model provider is connected yet. GPT, Claude, Gemini, Groq and others are planned integrations, and each one will only be shown as available once it really works.',
-    link: { label: 'See model setup', href: '/models' },
+    keys: ['who are you', 'what are you', 'what is ask lexiva', 'are you ai', 'is this ai', 'live ai'],
+    text: 'I’m Ask Lexiva, a curated product guide built into the homepage. I answer common questions about Lexiva; I’m not a live AI model and I don’t send your question to a provider.',
+  },
+  {
+    keys: ['fallback', 'model fails', 'model error', 'provider error', 'auto-switch', 'auto switch', 'automatic switch', 'model switching', 'switching models'],
+    text: 'If a model fails before it starts returning text, Lexiva can try up to two fallback models. It prefers a different provider, labels which model actually answered, and notes the switch. Once a response has started streaming, it does not switch mid-reply. A fallback can send the same prompt and attached text to another provider.',
+    link: { label: 'Open the model directory', href: '/models' },
+  },
+  {
+    keys: ['start chat', 'new chat', 'send a message', 'start a conversation', 'choose a model', 'select a model', 'switch models', 'change model', 'model selector'],
+    text: 'Open Chat, choose an available model from the model selector, and send a message. Start a new conversation with New chat. The selected model is shown in the chat header and composer.',
+    link: { label: 'Open Lexiva Chat', href: '/chat' },
+  },
+  {
+    keys: ['english', 'language', 'arabic', 'hindi', 'spanish', 'reply in', 'respond in'],
+    text: 'Chat requests instruct the selected or fallback model to answer in English. This is a prompt instruction rather than a strict language filter, so a model may occasionally ignore it.',
+  },
+  {
+    keys: ['voice', 'microphone', 'speech', 'dictation', 'talk'],
+    text: 'Signed-in users can use the microphone button to transcribe speech into the composer. Voice input requires browser microphone permission and a configured Groq API key; recordings are limited to about two minutes.',
+    link: { label: 'Open Lexiva Chat', href: '/chat' },
+  },
+  {
+    keys: ['error', 'not working', 'failed', 'unavailable', 'quota', 'rate limit'],
+    text: 'Model access and quotas are controlled by each provider. Check the Models page to confirm a model is currently listed. If a chat model fails before producing text, Lexiva may try a fallback; if the request still fails, it reports an error instead of inventing a reply.',
+    link: { label: 'Check the model directory', href: '/models' },
+  },
+  {
+    keys: ['model', 'provider', 'available', 'gpt', 'claude', 'gemini', 'groq', 'nvidia', 'which ai'],
+    text: 'The model directory lists models returned by providers configured on Lexiva’s server. Only listed models can be selected in Chat. Availability can vary with provider credentials, model access, service status, and usage limits.',
+    link: { label: 'Explore available models', href: '/models' },
   },
   {
     keys: ['compare', 'comparison', 'side by side', 'side-by-side'],
-    text: 'Comparison will send one prompt to several models and show the answers side by side, each labelled with the model that wrote it. The compare page is disabled for now, so it never shows made-up responses.',
-    link: { label: 'View compare page', href: '/compare' },
+    text: 'Lexiva has a server-side comparison endpoint, but the current Compare page is still a disabled preview and is not wired to run comparisons from its UI. It does not show fabricated answers.',
+    link: { label: 'View Compare', href: '/compare' },
   },
   {
-    keys: ['saved', 'save', 'history', 'persist', 'remember'],
-    text: 'Not yet. Messages on the chat page stay in your browser session only and are not stored or sent anywhere. The history page is an empty state until saving is built.',
-    link: { label: 'View history', href: '/history' },
+    keys: ['saved', 'save', 'history', 'persist', 'remember', 'stored', 'conversation history'],
+    text: 'Signed-in conversations are saved to the account-backed chat history and can be reopened from the Chat sidebar. The separate History page is currently an informational preview.',
+    link: { label: 'Open Chat and your conversations', href: '/chat' },
   },
   {
-    keys: ['file', 'upload', 'attach', 'pdf', 'image'],
-    text: 'File upload and analysis are not implemented yet. When they are, attached files will be used as conversation context, and the interface will say clearly what was actually processed.',
+    keys: ['file', 'upload', 'attach', 'attachment', 'pdf', 'image', 'spreadsheet', 'document'],
+    text: 'Chat currently accepts up to three plain-text or code files (for example TXT, Markdown, CSV, JSON, or source code). PDFs, images, and other binary files are not supported. Extracted text is sent as conversation context to the selected model, and may also be sent to a fallback provider if switching is needed.',
+    link: { label: 'Open Chat', href: '/chat' },
   },
   {
-    keys: ['api key', 'key', 'secret', 'security', 'secure', 'privacy'],
-    text: 'Provider API keys will only live on the server and will never appear in the browser, in public environment variables or in the repository. Conversations will be protected by authorization once accounts exist.',
+    keys: ['sign in', 'sign-in', 'login', 'log in', 'otp', 'one-time code', 'verification code', 'six digit', '6 digit', 'email code'],
+    text: 'Sign in with Google or GitHub, or request a six-digit email code through Supabase Auth. Email delivery depends on the SMTP provider configured for the deployment. Never share your one-time code.',
+    link: { label: 'Go to sign in', href: '/login?next=%2Fchat' },
   },
   {
-    keys: ['next', 'roadmap', 'future', 'coming', 'plan', 'agents'],
-    text: 'The focus is an excellent chat experience first: real providers, model switching, comparison and saved history. Knowledge sources, agents, custom models and a broader workspace are longer-term ideas, not current features.',
+    keys: ['api key', 'secret', 'security', 'secure', 'privacy', 'third party', 'third-party', 'data sent'],
+    text: 'Provider API keys are kept in server-side environment configuration and are not sent to the browser. Chat prompts and attached text are sent to the selected AI provider to generate a reply. If fallback is used, that same request may go to another configured provider.',
+  },
+  {
+    keys: ['coming', 'roadmap', 'future', 'plan', 'agents', 'custom model', 'knowledge base'],
+    text: 'Lexiva’s current focus is multi-model chat, model discovery, saved conversations, and provider fallback. The Compare page UI is still a preview. Custom models, knowledge sources, and AI agents are future ideas, not features to rely on today.',
   },
   {
     keys: ['hello', 'hi', 'hey', 'help'],
-    text: 'Hi! Ask me about Lexiva: models, comparison, history, files, security or what is coming next. You can also tap one of the suggestions below.',
+    text: 'Hi! I can explain Lexiva’s models, chat, fallback behavior, saved conversations, attachments, sign-in, privacy, and current limitations. Choose a suggestion or ask me about one of those topics.',
   },
 ];
 
 const FALLBACK =
-  'I can help with questions about Lexiva: what it is, models, comparison, saving, files, security and the roadmap. Try one of the suggestions below.';
+  'I’m a product guide for Lexiva, not a live general-purpose AI. I can answer questions about available models, chat, fallback, saved conversations, attachments, sign-in, privacy, and current limitations. Try one of the suggestions below.';
 
 function reply(q: string): { text: string; link?: { label: string; href: string } } {
   const s = q.toLowerCase();
-  const hit = KB.find((e) => e.keys.some((k) => s.includes(k)));
+  const hit = KB
+    .map((entry) => ({
+      entry,
+      specificity: Math.max(0, ...entry.keys.filter((key) => s.includes(key)).map((key) => key.length)),
+    }))
+    .filter(({ specificity }) => specificity > 0)
+    .sort((a, b) => b.specificity - a.specificity)[0]?.entry;
   return hit ? { text: hit.text, link: hit.link } : { text: FALLBACK };
 }
 
 const GREETING: Msg = {
   id: 0,
   role: 'assistant',
-  text: 'Hi, I am the Lexiva assistant. Ask me anything about the product, or tap a suggestion below.',
+  text: 'Hi, I’m Ask Lexiva—a quick guide to how this workspace works today. My answers are curated product information, not replies generated by a live AI model. What would you like to know?',
 };
 
 export function AskLexiva() {
