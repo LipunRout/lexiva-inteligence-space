@@ -48,9 +48,13 @@ export default function RootLayout({
         <Suspense fallback={null}>
           <RouteProgress />
         </Suspense>
-        <AppChrome />
+        <Suspense fallback={null}>
+          <AppChrome />
+        </Suspense>
         {children}
-        <AppFooter />
+        <Suspense fallback={null}>
+          <AppFooter />
+        </Suspense>
       </body>
     </html>
   );

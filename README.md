@@ -25,7 +25,7 @@ The long-term product should make it easy to select a supported model, start and
 - `/login` — Supabase sign-in with OAuth and email OTP verification.
 
 Chat and comparison use configured AI providers through server-side API routes. The model directory lists only models returned by configured providers; no API keys are exposed to the browser.
-The `/chat` route uses an immersive full-screen layout without the shared site navigation or footer.
+The `/chat` route and its sign-in screen (`/login?next=/chat`) use an immersive full-screen layout without the shared site navigation or footer.
 
 ## AI provider configuration
 
