@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { Suspense } from 'react';
-import { AppChrome } from '@/components/ui/app-chrome';
+import { AppChrome, AppFooter } from '@/components/ui/app-chrome';
 import { RouteProgress } from '@/components/ui/route-progress';
 import './globals.scss';
 import './tailwind.css';
@@ -50,6 +50,7 @@ export default function RootLayout({
         </Suspense>
         <AppChrome />
         {children}
+        <AppFooter />
       </body>
     </html>
   );

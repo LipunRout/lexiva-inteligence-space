@@ -1,21 +1,18 @@
-'use client';
-
-import { usePathname } from 'next/navigation';
 import { HeaderNav } from './nav';
 import { SiteFooter } from './site-footer';
 import { ChromeGate } from './chrome-gate';
 
 export function AppChrome() {
-  const pathname = usePathname();
-  const isChatRoute = pathname === '/chat' || pathname.startsWith('/chat/');
+  return (
+    <ChromeGate>
+      <HeaderNav />
+    </ChromeGate>
+  );
+}
 
-  if (isChatRoute) return null;
-
+export function AppFooter() {
   return (
     <>
-      <ChromeGate>
-        <HeaderNav />
-      </ChromeGate>
       <ChromeGate>
         <SiteFooter />
       </ChromeGate>
