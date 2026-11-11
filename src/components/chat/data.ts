@@ -28,6 +28,10 @@ const PROVIDERS: Record<string, { name: string; color: string }> = {
   mistral: { name: 'Mistral AI', color: '#facc15' },
   cohere: { name: 'Cohere', color: '#34d399' },
   cerebras: { name: 'Cerebras', color: '#38bdf8' },
+  nvidia: { name: 'NVIDIA', color: '#76b900' },
+  kimi: { name: 'Kimi', color: '#a3a3a3' },
+  huggingface: { name: 'Hugging Face', color: '#fbbf24' },
+  cloudflare: { name: 'Cloudflare Workers AI', color: '#f48120' },
 };
 
 let live: ModelInfo[] = [];

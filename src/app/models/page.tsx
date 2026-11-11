@@ -6,7 +6,18 @@ import { PageIntro } from '@/components/ui/product-ui';
 import { useModels } from '@/components/chat/use-models';
 import { ProviderIcon } from '@/components/chat/provider-icon';
 
-const SUPPORTED_PROVIDERS = ['Gemini', 'Groq', 'Mistral AI', 'Cerebras', 'OpenRouter', 'Cohere'];
+const SUPPORTED_PROVIDERS = [
+  'Gemini',
+  'Groq',
+  'Mistral AI',
+  'Cerebras',
+  'OpenRouter',
+  'Cohere',
+  'NVIDIA',
+  'Kimi',
+  'Hugging Face',
+  'Cloudflare Workers AI',
+];
 
 export default function ModelsPage() {
   const { models, loading, error } = useModels();

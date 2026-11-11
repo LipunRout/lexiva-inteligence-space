@@ -9,6 +9,7 @@ interface Cfg {
   name: string;
   baseUrl: string;
   apiKeyEnv: string;
+  requiredEnv?: string[];
   extraHeaders?: Record<string, string>;
   /** Fixed list, for providers without a usable /models endpoint. */
   staticModels?: { apiModel: string; label: string }[];
@@ -55,7 +56,8 @@ export function createOpenAICompatible(cfg: Cfg): AIProvider {
   return {
     id: cfg.id,
     name: cfg.name,
-    isConfigured: () => hasKey(cfg.apiKeyEnv),
+    isConfigured: () =>
+      hasKey(cfg.apiKeyEnv) && (cfg.requiredEnv ?? []).every(hasKey),
     listModels: loadModels,
 
     async *stream({ apiModel, messages, temperature, maxTokens, signal }) {

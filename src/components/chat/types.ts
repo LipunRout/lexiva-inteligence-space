@@ -12,6 +12,8 @@ export interface Message {
   createdAt: number;
   /** Model that produced this reply (assistant only). */
   modelId?: string;
+  /** Selected model when this reply had to use a fallback. */
+  fallbackFromModelId?: string;
   /** sample = hand-written demo content; notice = Lexiva system notice or error (not model output). */
   kind?: 'sample' | 'notice';
   feedback?: 'up' | 'down';

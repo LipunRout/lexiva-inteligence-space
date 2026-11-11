@@ -107,7 +107,7 @@ type CrewMember = { kind: CrewKind; letter: number; seat?: Seat; offset?: number
 const WORDMARK = 'LEXIVA';
 const BRAND = 'Lexiva';
 const BLURB =
-  'One intelligent space to explore, compare and work with multiple AI models. This is a prototype: no AI provider is connected yet.';
+  'One intelligent space to explore, compare and work with multiple AI models. Model availability depends on server-side provider configuration.';
 const TAGLINE = 'Many perspectives. One conversation.';
 
 const COLUMNS: { title: string; links: { label: string; href?: string }[] }[] = [
@@ -131,10 +131,10 @@ const COLUMNS: { title: string; links: { label: string; href?: string }[] }[] = 
   {
     title: 'Status',
     links: [
-      { label: 'Chat: local preview' },
-      { label: 'Providers: planned' },
-      { label: 'Compare: planned' },
-      { label: 'History: planned' },
+      { label: 'Chat: configured models' },
+      { label: 'Providers: server-configured' },
+      { label: 'Compare: available models' },
+      { label: 'History: account-based' },
     ],
   },
 ];
@@ -146,7 +146,7 @@ const ACTIONS: { label: string; href: string; icon: DoodleKind; variant: 'solid'
 
 const CREW: CrewMember[] = [
   { kind: 'yeti', letter: 0, seat: 'front', offset: -0.32, name: 'Bruno', says: 'Ask me about models!' },
-  { kind: 'bird', letter: 1, seat: 'top', offset: 0.02, name: 'Pip', says: 'No provider yet, but soon.' },
+  { kind: 'bird', letter: 1, seat: 'top', offset: 0.02, name: 'Pip', says: 'Model availability varies by setup.' },
   { kind: 'mushroom', letter: 2, seat: 'front', offset: 0.12, name: 'Morel', says: 'Compare answers side by side.' },
   { kind: 'ghost', letter: 3, seat: 'behind', offset: 0, name: 'Boo', says: 'Your chats stay in this browser.' },
   { kind: 'kid', letter: 4, seat: 'top', offset: -0.05, name: 'Juno', says: 'Up here! Best view of the prototype.' },
@@ -940,7 +940,7 @@ export function SiteFooter() {
         <p className="dcf-copy">© 2026 Lexiva Intelligence Space</p>
         <p className="dcf-status">
           <span className="dcf-dot" aria-hidden="true" />
-          Local-only conversations · No provider connected
+          Model availability varies by deployment
         </p>
         <button type="button" className="dcf-totop" onClick={toTop}>
           <span>Back to top</span>

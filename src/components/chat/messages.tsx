@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import type { Message, ModelInfo } from './types';
+import { getModel } from './data';
 import { ProviderIcon } from './provider-icon';
 import { ActionMenu } from './conversation-menu';
 
@@ -239,6 +240,11 @@ export function AIMessage({
           {badge && (
             <span className="rounded-full border border-white/[0.14] px-2 py-0.5 text-[11px] text-white/60">
               {badge}
+            </span>
+          )}
+          {message.fallbackFromModelId && (
+            <span className="rounded-full border border-amber-300/20 bg-amber-300/[0.06] px-2 py-0.5 text-[11px] text-amber-100/75">
+              Auto-switched from {getModel(message.fallbackFromModelId).name}
             </span>
           )}
         </div>

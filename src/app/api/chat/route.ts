@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { supabaseServer } from "@/lib/supabase-server";
 import { streamChat } from "@/server/ai/ai-router";
-import { findModel } from "@/server/ai/model-registry";
+import { listModels } from "@/server/ai/model-registry";
 import type { ChatMessage } from "@/server/ai/ai-types";
 
 export const runtime = "nodejs";
@@ -40,9 +40,21 @@ export async function POST(req: Request) {
   const { data: { user } } = await sb.auth.getUser();
   if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
-  if (!(await findModel(model))) {
+  const availableModels = await listModels();
+  const selectedModel = availableModels.find((item) => item.id === model);
+  if (!selectedModel) {
     return Response.json({ error: "That model isn't available. Pick another one." }, { status: 400 });
   }
+  const seenProviders = new Set([selectedModel.provider]);
+  const otherProviderModels = availableModels.filter((item) => {
+    if (seenProviders.has(item.provider)) return false;
+    seenProviders.add(item.provider);
+    return true;
+  });
+  const sameProviderModels = availableModels.filter(
+    (item) => item.provider === selectedModel.provider && item.id !== selectedModel.id
+  );
+  const candidates = [selectedModel, ...otherProviderModels, ...sameProviderModels].slice(0, 3);
 
   const { data: existing } = await sb
     .from("conversations").select("id").eq("id", conversationId).maybeSingle();
@@ -99,13 +111,14 @@ export async function POST(req: Request) {
   const stream = new ReadableStream({
     async start(controller) {
       let full = "";
+      let responseModel = selectedModel;
 
       // Saves whatever has been generated so far (also used when the user presses Stop)
       const save = async () => {
         if (full) {
           await sb.from("messages").insert({
             conversation_id: conversationId, role: "assistant", content: full,
-            provider: model.split(":")[0], model,
+            provider: responseModel.provider, model: responseModel.id,
           });
         }
         await sb.from("conversations")
@@ -113,11 +126,48 @@ export async function POST(req: Request) {
       };
 
       try {
-        send(controller, { type: "meta", conversationId, model });
+        const failures: string[] = [];
 
-        for await (const chunk of streamChat(model, history, { signal: req.signal })) {
-          full += chunk;
-          send(controller, { type: "delta", text: chunk });
+        for (const candidate of candidates) {
+          let candidateText = "";
+          try {
+            for await (const chunk of streamChat(candidate.id, history, { signal: req.signal })) {
+              if (!candidateText) {
+                responseModel = candidate;
+                send(controller, {
+                  type: "meta",
+                  conversationId,
+                  model: candidate.id,
+                  fallbackFrom: candidate.id === selectedModel.id ? undefined : selectedModel.id,
+                });
+              }
+              candidateText += chunk;
+              full = candidateText;
+              send(controller, { type: "delta", text: chunk });
+            }
+
+            responseModel = candidate;
+            full = candidateText;
+            if (!candidateText) {
+              send(controller, {
+                type: "meta",
+                conversationId,
+                model: candidate.id,
+                fallbackFrom: candidate.id === selectedModel.id ? undefined : selectedModel.id,
+              });
+            }
+            break;
+          } catch (error) {
+            if (candidateText || req.signal.aborted) throw error;
+            failures.push(error instanceof Error ? error.message : "Provider error");
+            if (candidate === candidates[candidates.length - 1]) {
+              const fallbackCount = failures.length - 1;
+              const summary = fallbackCount
+                ? `The selected model and ${fallbackCount} fallback model(s) could not respond.`
+                : "The selected model could not respond.";
+              throw new Error(`${summary} ${failures[failures.length - 1]}`);
+            }
+          }
         }
 
         await save();

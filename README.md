@@ -18,23 +18,29 @@ The long-term product should make it easy to select a supported model, start and
 ## Pages and implementation status
 
 - `/` — Lexiva overview and product workflow.
-- `/chat` — Local-only chat UI preview. Messages are not sent to an AI service.
+- `/chat` — Authenticated chat with server-side provider calls and saved conversations.
 - `/models` — Searchable model directory populated by the server-side provider configuration; empty-state setup guidance appears when no models are returned.
-- `/compare` — Comparison layout preview. It does not generate sample or model responses.
-- `/history` — Conversation history empty state. Messages are not persisted.
+- `/compare` — Authenticated comparison using configured provider models.
+- `/history` — Saved conversation history for the signed-in user.
 - `/login` — Supabase sign-in with OAuth and email OTP verification.
 
-The application does **not** connect to AI provider APIs or provide real model responses. These pages communicate the intended product structure, not completed AI features.
+Chat and comparison use configured AI providers through server-side API routes. The model directory lists only models returned by configured providers; no API keys are exposed to the browser.
 
-Treat the Lexiva AI workspace as the product goal, not an already implemented feature. Before adding providers, inspect the source and agree on supported models and server-side environment configuration.
+## AI provider configuration
+
+Set provider credentials in `.env.local` and restart the server. Supported keys include `GEMINI_API_KEY`, `GROQ_API_KEY`, `MISTRAL_API_KEY`, `CEREBRAS_API_KEY`, `OPENROUTER_API_KEY`, `COHERE_API_KEY`, `NVIDIA_API_KEY`, `KIMI_API_KEY`, and `HUGGINGFACEHUB_API_KEY`. Cloudflare Workers AI also requires `CLOUDFLARE_ACCOUNT_ID` alongside `CLOUDFLARE_API_KEY`.
+
+If a selected model fails before returning any response text, chat automatically tries up to two other configured models. It prefers a different provider, then another model from the selected provider. The response is labeled with the model that actually answered and indicates when it switched. A failure after streaming starts does not trigger a retry, avoiding duplicated or mixed responses. Fallback sends the same prompt and attachments to another configured provider.
+
+The AI chat, model directory, comparison, and saved conversation routes are implemented. Other roadmap ideas should not be presented as available until the corresponding functionality exists.
 
 ## Email sign-in
 
-The login page requests a Supabase email sign-in link and sends it back through `/auth/callback`. This works with Supabase's default email template; no custom SMTP setup is needed for testing with an authorized team address. Supabase's default mailer is restricted to authorized team addresses and rate-limited.
+The login page requests a Supabase email OTP, then verifies the code with Supabase Auth. Configure Resend as the SMTP provider in the Supabase dashboard (Auth → SMTP Settings): use `smtp.resend.com`, username `resend`, and the Resend API key as the SMTP password. Set the sender address to an address on a domain verified with Resend.
 
-The default template is a magic link, not a four-digit code. To send numeric OTP codes instead, configure custom SMTP in Supabase so the email template can be edited, update the Magic Link / OTP template to display `{{ .Token }}`, and configure the Email provider's OTP length. Keep OTP expiry short and rate limits enabled.
+In Supabase's Magic Link / OTP email template, include `{{ .Token }}` so users receive a code rather than a link. In the Email provider settings, set OTP length to **4**, choose a short expiry, and keep rate limits enabled. The login form requires exactly four numeric digits.
 
-The project uses the public Supabase URL and publishable/anon key in the frontend; do not put SMTP credentials or Supabase service-role keys in `NEXT_PUBLIC_*` variables.
+Resend delivery is configured in Supabase, not in the browser or application code. The app does not read `RESEND_API_KEY`; use it as the SMTP password in the Supabase dashboard, and never expose it through a `NEXT_PUBLIC_*` variable. The project uses only the public Supabase URL and publishable/anon key in the frontend; do not put SMTP credentials or Supabase service-role keys in `NEXT_PUBLIC_*` variables.
 
 ## Project structure
 

@@ -56,6 +56,35 @@ const providers: AIProvider[] = [
       { apiModel: "command-r-plus-08-2024", label: "Command R+" },
     ],
   }),
+
+  createOpenAICompatible({
+    id: "nvidia",
+    name: "NVIDIA",
+    baseUrl: "https://integrate.api.nvidia.com/v1",
+    apiKeyEnv: "NVIDIA_API_KEY",
+  }),
+
+  createOpenAICompatible({
+    id: "kimi",
+    name: "Kimi",
+    baseUrl: "https://api.moonshot.ai/v1",
+    apiKeyEnv: "KIMI_API_KEY",
+  }),
+
+  createOpenAICompatible({
+    id: "huggingface",
+    name: "Hugging Face",
+    baseUrl: "https://router.huggingface.co/v1",
+    apiKeyEnv: "HUGGINGFACEHUB_API_KEY",
+  }),
+
+  createOpenAICompatible({
+    id: "cloudflare",
+    name: "Cloudflare Workers AI",
+    baseUrl: `https://api.cloudflare.com/client/v4/accounts/${process.env.CLOUDFLARE_ACCOUNT_ID}/ai/v1`,
+    apiKeyEnv: "CLOUDFLARE_API_KEY",
+    requiredEnv: ["CLOUDFLARE_ACCOUNT_ID"],
+  }),
 ];
 
 export const getProvider = (id: string) => providers.find((p) => p.id === id);

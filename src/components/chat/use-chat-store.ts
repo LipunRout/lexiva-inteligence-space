@@ -105,6 +105,8 @@ export function useChatStore() {
     abort.current = ctrl;
     const assistantId = uid();
     let started = false;
+    let responseModelId = modelId;
+    let fallbackFromModelId: string | undefined;
 
     const patch = (fn: (m: Message[]) => Message[]) =>
       setConversations((p) =>
@@ -168,12 +170,27 @@ export function useChatStore() {
           if (!line.startsWith('data:')) continue;
           const evt = JSON.parse(line.slice(5));
 
-          if (evt.type === 'delta') {
+          if (evt.type === 'meta') {
+            responseModelId = evt.model ?? modelId;
+            fallbackFromModelId = evt.fallbackFrom;
+            if (responseModelId !== modelId) {
+              setConversations((p) =>
+                p.map((c) => (c.id === convoId ? { ...c, modelId: responseModelId } : c))
+              );
+            }
+          } else if (evt.type === 'delta') {
             if (!started) {
               started = true;
               patch((ms) => [
                 ...ms,
-                { id: assistantId, role: 'assistant', modelId, content: evt.text, createdAt: Date.now() },
+                {
+                  id: assistantId,
+                  role: 'assistant',
+                  modelId: responseModelId,
+                  fallbackFromModelId,
+                  content: evt.text,
+                  createdAt: Date.now(),
+                },
               ]);
             } else {
               patch((ms) => ms.map((m) => (m.id === assistantId ? { ...m, content: m.content + evt.text } : m)));
