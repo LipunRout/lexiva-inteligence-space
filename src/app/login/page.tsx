@@ -58,8 +58,8 @@ function LoginForm() {
 
   async function verifyCode(e: FormEvent) {
     e.preventDefault();
-    if (!/^\d{4}$/.test(code)) {
-      setError('Enter the 4-digit code from your email.');
+    if (!/^\d{6}$/.test(code)) {
+      setError('Enter the 6-digit code from your email.');
       return;
     }
     setBusy(true);
@@ -113,10 +113,10 @@ function LoginForm() {
           <form onSubmit={verifyCode} className="flex flex-col gap-2.5">
             <label htmlFor="code" className="sr-only">Verification code</label>
             <input id="code" type="text" required autoComplete="one-time-code" inputMode="numeric"
-              pattern="[0-9]{4}" minLength={4} maxLength={4} placeholder="4-digit code"
-              value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 4))}
+              pattern="[0-9]{6}" minLength={6} maxLength={6} placeholder="6-digit code"
+              value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
               className={`${input} text-center tracking-[0.3em]`} />
-            <button type="submit" disabled={busy || code.length !== 4} className={btn}>
+            <button type="submit" disabled={busy || code.length !== 6} className={btn}>
               {busy ? 'Verifying...' : 'Verify code'}
             </button>
             <div className="flex items-center justify-between px-1 text-xs text-[#8e8d95]">

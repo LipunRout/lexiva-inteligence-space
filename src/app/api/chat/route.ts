@@ -102,6 +102,13 @@ export async function POST(req: Request) {
     if (prev && prev.role === r.role) prev.content += `\n\n${text}`;
     else history.push({ role: r.role, content: text });
   }
+  const requestMessages: ChatMessage[] = [
+    {
+      role: "system",
+      content: "Respond only in English, regardless of the language used in the user's message. Keep the entire response in English.",
+    },
+    ...history,
+  ];
 
   const enc = new TextEncoder();
   const send = (c: ReadableStreamDefaultController, obj: unknown) => {
@@ -131,7 +138,7 @@ export async function POST(req: Request) {
         for (const candidate of candidates) {
           let candidateText = "";
           try {
-            for await (const chunk of streamChat(candidate.id, history, { signal: req.signal })) {
+            for await (const chunk of streamChat(candidate.id, requestMessages, { signal: req.signal })) {
               if (!candidateText) {
                 responseModel = candidate;
                 send(controller, {
