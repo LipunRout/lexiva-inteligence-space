@@ -1,9 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Suspense } from 'react';
-import { HeaderNav } from '@/components/ui/nav';
-import { SiteFooter } from '@/components/ui/site-footer';
+import { AppChrome } from '@/components/ui/app-chrome';
 import { RouteProgress } from '@/components/ui/route-progress';
-import { ChromeGate } from '@/components/ui/chrome-gate';
 import './globals.scss';
 import './tailwind.css';
 
@@ -50,16 +48,8 @@ export default function RootLayout({
         <Suspense fallback={null}>
           <RouteProgress />
         </Suspense>
-        <ChromeGate>
-          <HeaderNav />
-        </ChromeGate>
+        <AppChrome />
         {children}
-        <ChromeGate>
-          <SiteFooter />
-        </ChromeGate>
-        <ChromeGate>
-          <div aria-hidden="true" className="h-[calc(68px+env(safe-area-inset-bottom))] xl:hidden" />
-        </ChromeGate>
       </body>
     </html>
   );
