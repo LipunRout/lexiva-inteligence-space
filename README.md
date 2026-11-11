@@ -30,6 +30,8 @@ Chat and comparison use configured AI providers through server-side API routes. 
 
 Set provider credentials in `.env.local` and restart the server. Supported keys include `GEMINI_API_KEY`, `GROQ_API_KEY`, `MISTRAL_API_KEY`, `CEREBRAS_API_KEY`, `OPENROUTER_API_KEY`, `COHERE_API_KEY`, `NVIDIA_API_KEY`, `KIMI_API_KEY`, and `HUGGINGFACEHUB_API_KEY`. Cloudflare Workers AI also requires `CLOUDFLARE_ACCOUNT_ID` alongside `CLOUDFLARE_API_KEY`.
 
+Gemini model discovery excludes Omni, Argon, Nano Banana, Preview, experimental, and non-chat models, in addition to Pro models. Model discovery also filters the known incompatible chat models `allam-2-7b`, `01-ai/yi-large`, `adept/fuyu-8b`, `ai21labs/jamba-1.5-large-instruct`, `bigcode/starcoder2-15b`, `databricks/dbrx-instruct`, `deepseek-ai/deepseek-coder-6.7b-instruct`, and `google/codegemma-1.1-7b`.
+
 Chat instructions ask every selected or fallback model to respond only in English. If a selected model fails before returning any response text, chat automatically tries up to two other configured models. It prefers a different provider, then another model from the selected provider. The response is labeled with the model that actually answered and indicates when it switched. A failure after streaming starts does not trigger a retry, avoiding duplicated or mixed responses. Fallback sends the same prompt and attachments to another configured provider.
 
 The AI chat, model directory, comparison, and saved conversation routes are implemented. Other roadmap ideas should not be presented as available until the corresponding functionality exists.

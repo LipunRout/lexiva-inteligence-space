@@ -5,7 +5,7 @@ import { sseData } from "../sse";
 const BASE = "https://generativelanguage.googleapis.com/v1beta";
 
 // Skip non-chat models, experimental ones, and all Pro models (no free quota).
-const SKIP = /embedding|tts|image|audio|live|native|robotics|computer-use|aqa|exp|(^|[-/])pro([-/]|$)/i;
+const SKIP = /embedding|tts|image|audio|live|native|robotics|computer-use|aqa|exp|argon|omni|nano[- ]?banana|preview|(^|[-/])pro([-/]|$)/i;
 
 interface GeminiModel {
   name: string;
