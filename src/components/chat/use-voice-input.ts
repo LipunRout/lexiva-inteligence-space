@@ -19,10 +19,15 @@ export function useVoiceInput(onText: (text: string) => void) {
   const [supported, setSupported] = useState(false);
   const [state, setState] = useState<VoiceState>('idle');
   const [seconds, setSeconds] = useState(0);
+  const [audioLevel, setAudioLevel] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
   const recorder = useRef<MediaRecorder | null>(null);
   const stream = useRef<MediaStream | null>(null);
+  const audioContext = useRef<AudioContext | null>(null);
+  const analyser = useRef<AnalyserNode | null>(null);
+  const audioData = useRef<Uint8Array<ArrayBuffer> | null>(null);
+  const audioFrame = useRef<number | null>(null);
   const chunks = useRef<Blob[]>([]);
   const timer = useRef<number | null>(null);
   const cancelled = useRef(false);
@@ -40,6 +45,15 @@ export function useVoiceInput(onText: (text: string) => void) {
     }
     stream.current?.getTracks().forEach((t) => t.stop());
     stream.current = null;
+    if (audioFrame.current !== null) {
+      cancelAnimationFrame(audioFrame.current);
+      audioFrame.current = null;
+    }
+    analyser.current = null;
+    audioData.current = null;
+    const context = audioContext.current;
+    audioContext.current = null;
+    if (context && context.state !== 'closed') void context.close();
   }, []);
 
   const stop = useCallback(() => {
@@ -52,6 +66,7 @@ export function useVoiceInput(onText: (text: string) => void) {
     else {
       release();
       setState('idle');
+      setAudioLevel(0);
     }
   }, [release]);
 
@@ -78,6 +93,38 @@ export function useVoiceInput(onText: (text: string) => void) {
     try {
       const s = await navigator.mediaDevices.getUserMedia({ audio: true });
       stream.current = s;
+      if (typeof window.AudioContext === 'function') {
+        const context = new window.AudioContext();
+        const meter = context.createAnalyser();
+        meter.fftSize = 512;
+        meter.smoothingTimeConstant = 0.72;
+        context.createMediaStreamSource(s).connect(meter);
+        audioContext.current = context;
+        analyser.current = meter;
+        audioData.current = new Uint8Array(new ArrayBuffer(meter.fftSize));
+        if (context.state === 'suspended') await context.resume();
+
+        let lastLevelUpdate = 0;
+        const measureAudio = (timestamp: number) => {
+          const currentAnalyser = analyser.current;
+          const data = audioData.current;
+          if (!currentAnalyser || !data) return;
+
+          currentAnalyser.getByteTimeDomainData(data);
+          let sum = 0;
+          for (let i = 0; i < data.length; i++) {
+            const sample = (data[i] - 128) / 128;
+            sum += sample * sample;
+          }
+          if (timestamp - lastLevelUpdate >= 50) {
+            setAudioLevel(Math.min(Math.sqrt(sum / data.length) * 6, 1));
+            lastLevelUpdate = timestamp;
+          }
+          audioFrame.current = requestAnimationFrame(measureAudio);
+        };
+        audioFrame.current = requestAnimationFrame(measureAudio);
+      }
+
       const mime = pickMime();
       const r = new MediaRecorder(s, mime ? { mimeType: mime } : undefined);
       chunks.current = [];
@@ -90,14 +137,17 @@ export function useVoiceInput(onText: (text: string) => void) {
         release();
         if (cancelled.current) {
           setState('idle');
+          setAudioLevel(0);
           return;
         }
         const blob = new Blob(chunks.current, { type: r.mimeType || mime || 'audio/webm' });
         if (blob.size < 1500) {
           setState('idle');
+          setAudioLevel(0);
           setError('No audio captured. Try again.');
           return;
         }
+        setAudioLevel(0);
         void transcribe(blob);
       };
 
@@ -109,6 +159,7 @@ export function useVoiceInput(onText: (text: string) => void) {
     } catch (e) {
       release();
       setState('idle');
+      setAudioLevel(0);
       const name = (e as DOMException).name;
       setError(
         name === 'NotAllowedError'
@@ -142,5 +193,5 @@ export function useVoiceInput(onText: (text: string) => void) {
     [release]
   );
 
-  return { supported, state, seconds, error, start, stop, cancel };
+  return { supported, state, seconds, audioLevel, error, start, stop, cancel };
 }

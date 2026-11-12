@@ -1,12 +1,13 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import { useReducedMotion } from 'framer-motion';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { ModelSelector } from './model-selector';
 import { ACCEPT, MAX_FILES, MAX_TOTAL_CHARS, formatSize, readFiles, type PickedFile } from './attachments';
 import { useVoiceInput } from './use-voice-input';
 import { requestStop } from './chat-events';
 import { BorderBeam } from '@/components/ui/border-beam';
+import { VoicePoweredOrb } from '@/components/ui/voice-powered-orb';
 
 const mmss = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
 
@@ -97,6 +98,52 @@ export function MessageComposer({
 
   return (
     <div className="w-full">
+      {/* In-flow orb: opens above the text box and pushes the page layout, nothing overlaps */}
+      <AnimatePresence initial={false}>
+        {recording && (
+          <motion.div
+            key="voice-orb"
+            role="group"
+            aria-label="Voice recording"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: prefersReducedMotion ? 0 : 0.4, ease: [0.22, 1, 0.36, 1] }}
+            className="overflow-hidden"
+          >
+            <div className="flex flex-col items-center gap-2 pb-5 pt-2">
+              <div className="h-40 w-40 sm:h-44 sm:w-44">
+                <VoicePoweredOrb
+                  audioLevel={voice.audioLevel}
+                  reducedMotion={!!prefersReducedMotion}
+                />
+              </div>
+
+              <div className="flex items-center gap-3 rounded-full border border-white/[0.1] bg-[#18181c]/90 py-1.5 pl-3.5 pr-1.5">
+                <span className="h-2 w-2 shrink-0 animate-pulse rounded-full bg-red-400" />
+                <span aria-live="polite" className="text-[13px] text-[#f4f4f6]">
+                  Listening · {mmss(voice.seconds)}
+                </span>
+                <button
+                  type="button"
+                  onClick={voice.cancel}
+                  className="rounded-full border border-white/[0.12] px-3 py-1 text-[12px] text-[#c8c7ce] transition-colors hover:bg-white/[0.07] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/60"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={voice.stop}
+                  className="rounded-full bg-[#f4f4f6] px-3 py-1 text-[12px] font-medium text-[#18181c] transition-colors hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/60"
+                >
+                  Finish
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <BorderBeam
         size="md"
         colorVariant="colorful"
@@ -105,29 +152,13 @@ export function MessageComposer({
         className="w-full"
       >
         <div className="rounded-[24px] border border-white/[0.065] bg-[#18181c] px-[18px] pb-4 pt-5 shadow-[0_20px_45px_-15px_rgba(0,0,0,0.45),0_1px_0_0_rgba(255,255,255,0.05)_inset] transition-colors focus-within:border-white/[0.14]">
-          {(recording || transcribing) && (
+          {transcribing && (
             <div
               role="status"
-              className="mb-3 flex items-center gap-2.5 rounded-xl border border-red-400/25 bg-red-500/10 px-3 py-2 text-[13px] text-red-100"
+              className="mb-3 flex items-center gap-2.5 rounded-xl border border-white/[0.08] bg-white/[0.035] px-3 py-2 text-[13px] text-[#d8d7de]"
             >
-              {recording ? (
-                <>
-                  <span className="h-2 w-2 shrink-0 animate-pulse rounded-full bg-red-400" />
-                  <span>Recording {mmss(voice.seconds)}. Press the mic to finish.</span>
-                  <button
-                    type="button"
-                    onClick={voice.cancel}
-                    className="ml-auto rounded-md px-2 py-1 text-[12px] font-medium text-red-100/80 hover:bg-white/10 hover:text-white"
-                  >
-                    Cancel
-                  </button>
-                </>
-              ) : (
-                <>
-                  <span className="h-3.5 w-3.5 shrink-0 animate-spin rounded-full border-2 border-red-200/30 border-t-red-100" />
-                  <span>Transcribing...</span>
-                </>
-              )}
+              <span className="h-3.5 w-3.5 shrink-0 animate-spin rounded-full border-2 border-white/20 border-t-white/80" />
+              <span>Transcribing your recording...</span>
             </div>
           )}
 
