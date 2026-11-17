@@ -3,6 +3,7 @@ import { supabaseServer } from "@/lib/supabase-server";
 import { streamChat } from "@/server/ai/ai-router";
 import { listModels } from "@/server/ai/model-registry";
 import type { ChatMessage } from "@/server/ai/ai-types";
+import { conversationTitleFromPrompt } from "@/lib/conversation-title";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -23,8 +24,6 @@ const Body = z
     attachments: z.array(Attachment).max(3).optional(),
   })
   .refine((b) => b.regenerate || b.content, { message: "content required" });
-
-const makeTitle = (t: string) => t.replace(/\s+/g, " ").trim().slice(0, 60);
 
 export async function POST(req: Request) {
   const parsed = Body.safeParse(await req.json().catch(() => null));
@@ -64,7 +63,7 @@ export async function POST(req: Request) {
       return Response.json({ error: "Conversation not found. Send your message again." }, { status: 404 });
     }
     const { error } = await sb.from("conversations")
-      .insert({ id: conversationId, user_id: user.id, title: makeTitle(content) });
+      .insert({ id: conversationId, user_id: user.id, title: conversationTitleFromPrompt(content) });
     if (error) return Response.json({ error: error.message }, { status: 500 });
   }
 

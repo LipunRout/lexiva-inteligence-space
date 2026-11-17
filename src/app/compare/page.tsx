@@ -1,64 +1,59 @@
 import Link from 'next/link';
-import { EmptyState, PageIntro, PrototypeNotice } from '@/components/ui/product-ui';
+import { CompareWorkspace } from '@/components/compare/compare-workspace';
 
 export default function ComparePage() {
   return (
-    <main className="mx-auto min-h-[calc(100vh-72px)] w-full max-w-[1180px] px-4 py-10 sm:px-7 sm:py-14">
-      <PageIntro
-        eyebrow="Side-by-side thinking"
-        title="Compare answers, not guesses."
-        description="The comparison experience will show each response next to its verified provider and model, so differences are easy to understand."
-      />
-
-      <PrototypeNotice>
-        <strong>Comparison is unavailable in this prototype.</strong> No model
-        APIs are connected. This page intentionally shows no sample AI answers.
-      </PrototypeNotice>
-
-      <section className="mt-8 overflow-hidden rounded-[22px] border border-[#E8E5EF] bg-white shadow-[0_12px_42px_rgba(41,38,58,0.04)]">
-        <div className="flex flex-col gap-3 border-b border-[#EEEAF4] p-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-          <div>
-            <h2 className="text-[15px] font-semibold text-[#29263A]">Response comparison</h2>
-            <p className="mt-1 text-[12px] text-[#85838F]">Provider names will appear after integrations are verified.</p>
-          </div>
-          <span className="inline-flex min-h-9 w-fit items-center gap-2 rounded-full bg-[#F5F2EA] px-3 text-[11px] font-medium text-[#79652F]">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#D79B49]" />
-            Waiting for providers
-          </span>
+    <main className="mx-auto min-h-[calc(100vh-72px)] w-full max-w-[1240px] px-4 pb-16 pt-10 sm:px-7 sm:pt-14">
+      <header className="mb-9 grid gap-8 lg:grid-cols-[minmax(0,1fr)_300px] lg:items-end">
+        <div>
+          <p className="mb-5 inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#c5b9ff]">
+            <span className="h-px w-7 bg-[#c5b9ff]/70" />
+            Lexiva / Compare
+          </p>
+          <h1 className="max-w-[760px] text-[38px] font-medium leading-[0.98] tracking-[-0.06em] text-[#f4f1ea] sm:text-[58px]">
+            One question.
+            <br />
+            <span className="text-white/45">Two ways to think.</span>
+          </h1>
+          <p className="mt-5 max-w-[590px] text-[15px] leading-7 text-white/55">
+            Send one prompt to several configured models at once. Each response stays attributed to
+            the provider and model that produced it.
+          </p>
         </div>
 
-        <div className="grid divide-y divide-[#EEEAF4] md:grid-cols-2 md:divide-x md:divide-y-0">
-          {[1, 2].map((column) => (
-            <div key={column} className="px-5 sm:px-7">
-              <EmptyState
-                symbol={column === 1 ? 'A' : 'B'}
-                title={`Model response ${column}`}
-                description="No provider is connected, so there is no real response to display."
-              />
-            </div>
-          ))}
-        </div>
-
-        <div className="border-t border-[#EEEAF4] bg-[#FAF9FC] p-4 sm:p-5">
-          <label htmlFor="comparison-prompt" className="sr-only">Prompt to compare</label>
-          <textarea
-            id="comparison-prompt"
-            disabled
-            placeholder="Connect at least two models to start a comparison."
-            className="min-h-[88px] w-full resize-y rounded-[14px] border border-[#E8E5EF] bg-white px-4 py-3 text-[13px] text-[#777582] placeholder:text-[#9A98A3] disabled:cursor-not-allowed disabled:bg-[#FCFBFD]"
+        <div className="relative overflow-hidden rounded-[20px] border border-white/[0.09] bg-[#101014] p-5">
+          <div
+            aria-hidden="true"
+            className="absolute -right-8 -top-10 h-32 w-32 rounded-full border border-[#b9acff]/15"
           />
-          <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-[11px] text-[#85838F]">Each answer must be attributed to its actual provider and model.</p>
-            <button type="button" disabled className="inline-flex min-h-10 items-center justify-center rounded-xl bg-[#29263A] px-4 text-[12px] font-semibold text-white opacity-40">
-              Compare responses
-            </button>
+          <div
+            aria-hidden="true"
+            className="absolute -right-1 -top-3 h-20 w-20 rounded-full border border-[#e9b58a]/20"
+          />
+          <p className="relative text-[10px] font-semibold uppercase tracking-[0.18em] text-white/35">
+            The comparison loop
+          </p>
+          <div className="relative mt-5 flex items-center gap-2 text-[11px] font-medium">
+            <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-2 text-white/75">
+              One prompt
+            </span>
+            <span aria-hidden="true" className="h-px flex-1 bg-white/15" />
+            <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-2 text-white/75">
+              Two views
+            </span>
           </div>
         </div>
-      </section>
+      </header>
 
-      <div className="mt-6 text-center">
-        <Link href="/models" className="text-[13px] font-medium text-[#6559DB] underline decoration-[#D8D4EA] underline-offset-4 hover:text-[#4E43BD]">
-          Learn about model connections
+      <CompareWorkspace />
+
+      <div className="mt-6 flex flex-col items-center justify-center gap-2 text-center sm:flex-row sm:gap-3">
+        <span className="text-[12px] text-white/40">Want to prepare for comparison?</span>
+        <Link
+          href="/models"
+          className="text-[12px] font-medium text-[#c5b9ff] underline decoration-[#c5b9ff]/35 underline-offset-4 transition-colors hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#c5b9ff] motion-reduce:transition-none"
+        >
+          Explore model setup
         </Link>
       </div>
     </main>

@@ -64,7 +64,7 @@ const KB: { keys: string[]; text: string; link?: { label: string; href: string }
   },
   {
     keys: ['compare', 'comparison', 'side by side', 'side-by-side'],
-    text: 'Lexiva has a server-side comparison endpoint, but the current Compare page is still a disabled preview and is not wired to run comparisons from its UI. It does not show fabricated answers.',
+    text: 'Compare lets signed-in users send one prompt to two to four currently available models in parallel. Each result is labeled with its actual model and provider; individual provider failures are shown, and comparison results are not saved to chat history.',
     link: { label: 'View Compare', href: '/compare' },
   },
   {
@@ -88,7 +88,7 @@ const KB: { keys: string[]; text: string; link?: { label: string; href: string }
   },
   {
     keys: ['coming', 'roadmap', 'future', 'plan', 'agents', 'custom model', 'knowledge base'],
-    text: 'Lexiva’s current focus is multi-model chat, model discovery, saved conversations, and provider fallback. The Compare page UI is still a preview. Custom models, knowledge sources, and AI agents are future ideas, not features to rely on today.',
+    text: 'Lexiva’s current focus is multi-model chat, model discovery, saved conversations, provider fallback, and side-by-side model comparison. Custom models, knowledge sources, and AI agents are future ideas, not features to rely on today.',
   },
   {
     keys: ['hello', 'hi', 'hey', 'help'],

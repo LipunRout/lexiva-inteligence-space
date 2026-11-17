@@ -20,7 +20,7 @@ The long-term product should make it easy to select a supported model, start and
 - `/` — Lexiva overview and product workflow.
 - `/chat` — Authenticated chat with server-side provider calls and saved conversations.
 - `/models` — Searchable model directory populated by the server-side provider configuration; empty-state setup guidance appears when no models are returned.
-- `/compare` — Authenticated comparison using configured provider models.
+- `/compare` — Authenticated side-by-side comparison across two to four configured models. Each result identifies its actual model and provider; comparison results are not saved to chat history.
 - `/history` — Saved conversation history for the signed-in user.
 - `/login` — Supabase sign-in with OAuth and email OTP verification.
 
@@ -53,7 +53,9 @@ Resend delivery is configured in Supabase, not in the browser or application cod
 | `src/app/layout.tsx` | Root document, metadata, and global style imports |
 | `src/app/chat/page.tsx` | Authenticated provider-backed chat with account-scoped conversation history |
 | `src/app/models/page.tsx` | Searchable directory of models returned by configured providers, with secure setup guidance |
-| `src/app/compare/page.tsx` | Comparison preview; its interface is currently disabled |
+| `src/app/compare/page.tsx` | Comparison page and workspace entry point |
+| `src/components/compare/compare-workspace.tsx` | Model selection, shared prompt, and per-model comparison results |
+| `src/app/api/compare/route.ts` | Authenticated server-side comparison endpoint for configured models |
 | `src/app/history/page.tsx` | Informational history preview; saved conversations are accessible from the Chat sidebar |
 | `src/app/manifest.ts` | PWA web app manifest for installable Lexiva |
 | `src/app/sw.ts` | Serwist service worker, static asset caching, and offline navigation fallback |
@@ -64,6 +66,8 @@ Resend delivery is configured in Supabase, not in the browser or application cod
 | `src/app/tailwind.css` | Tailwind base, components, and utilities |
 | `package.json` | Project name, scripts, and dependency manifest |
 | `src/components/ui/nav.tsx` | Responsive navigation and mobile menu |
+| `src/components/chat/sidebar-resize-handle.tsx` | Accessible pointer- and keyboard-controlled Chat sidebar resizing |
+| `src/lib/conversation-title.ts` | Short topic titles derived from a conversation's first prompt |
 | `src/components/ui/site-footer.tsx` | Shared dark Lexiva footer and prototype status across all routes |
 | `src/components/sections/intelligence.tsx` | Homepage product principles and prototype transparency accordion |
 | `src/components/sections/perspectives.tsx` | Scrollable homepage perspectives carousel |

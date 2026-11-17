@@ -8,11 +8,15 @@ import type { Conversation } from './types';
 import { getModel, groupConversations } from './data';
 import { ActionMenu } from './conversation-menu';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
+import { DEFAULT_SIDEBAR_WIDTH } from './sidebar-resize-handle';
 
 interface Props {
   conversations: Conversation[];
   activeId: string | null;
   open: boolean;
+  sidebarWidth: number;
+  resizing?: boolean;
+  currentPage: 'chat' | 'compare';
   drawerOpen: boolean;
   onCloseDrawer: () => void;
   onSelect: (id: string) => void;
@@ -24,10 +28,10 @@ interface Props {
 }
 
 const NAV = [
-  { label: 'Chats', href: null },
-  { label: 'Explore Models', href: '/models' },
-  { label: 'Compare Models', href: '/compare' },
-  { label: 'History', href: '/history' },
+  { label: 'Chats', href: '/chat', section: 'chat' },
+  { label: 'Explore Models', href: '/models', section: null },
+  { label: 'Compare Models', href: '/compare', section: 'compare' },
+  { label: 'History', href: '/history', section: null },
 ];
 
 function Item({
@@ -112,7 +116,9 @@ function Content({
   onDelete,
   user,
   userLoading,
-}: Omit<Props, 'open' | 'drawerOpen' | 'onCloseDrawer'>) {
+  sidebarWidth,
+  currentPage,
+}: Omit<Props, 'open' | 'drawerOpen' | 'onCloseDrawer' | 'resizing'>) {
   const [query, setQuery] = useState('');
 
   const filtered = useMemo(() => {
@@ -126,7 +132,7 @@ function Content({
   const groups = useMemo(() => groupConversations(filtered), [filtered]);
 
   return (
-    <div className="flex h-full w-[288px] flex-col bg-[#18181c]">
+    <div className="flex h-full flex-col bg-[#18181c]" style={{ width: sidebarWidth }}>
       <div className="px-4 pb-3 pt-4">
         <Link href="/" aria-label="Lexiva home" className="inline-flex items-center gap-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/60">
           <Image src="/lexiva-mark.png" alt="" aria-hidden="true" width={840} height={768} className="h-8 w-8 object-contain" />
@@ -166,8 +172,17 @@ function Content({
       </div>
 
       <nav aria-label="Workspace" className="mt-3 px-3">
-        {NAV.map((n) =>
-          n.href ? (
+        {NAV.map((n) => {
+          const active = n.section === currentPage;
+          return active ? (
+            <span
+              key={n.label}
+              aria-current="page"
+              className="flex h-10 items-center rounded-full bg-white/[0.08] px-4 text-[14px] font-semibold text-[#f4f4f6]"
+            >
+              {n.label}
+            </span>
+          ) : (
             <Link
               key={n.label}
               href={n.href}
@@ -175,12 +190,8 @@ function Content({
             >
               {n.label}
             </Link>
-          ) : (
-            <span key={n.label} aria-current="page" className="flex h-10 items-center rounded-full bg-white/[0.08] px-4 text-[14px] font-semibold text-[#f4f4f6]">
-              {n.label}
-            </span>
-          )
-        )}
+          );
+        })}
       </nav>
 
       <div className="mt-2 min-h-0 flex-1 overflow-y-auto px-3 pb-3 [scrollbar-color:rgba(255,255,255,0.15)_transparent] [scrollbar-width:thin]">
@@ -255,7 +266,7 @@ function Content({
 }
 
 export function ChatSidebar(props: Props) {
-  const { open, drawerOpen, onCloseDrawer, onSelect, onNew } = props;
+  const { open, sidebarWidth, resizing, drawerOpen, onCloseDrawer, onSelect, onNew } = props;
 
   useEffect(() => {
     if (!drawerOpen) return;
@@ -271,10 +282,11 @@ export function ChatSidebar(props: Props) {
           <motion.aside
             key="desktop"
             initial={{ width: 0 }}
-            animate={{ width: 288 }}
+            animate={{ width: sidebarWidth }}
             exit={{ width: 0 }}
-            transition={{ duration: 0.25, ease: [0.2, 0.8, 0.2, 1] }}
+            transition={resizing ? { duration: 0 } : { duration: 0.25, ease: [0.2, 0.8, 0.2, 1] }}
             aria-label="Conversations"
+            id="conversation-sidebar"
             className="hidden shrink-0 overflow-hidden border-r border-white/[0.06] lg:block"
           >
             <Content {...props} />
@@ -298,10 +310,12 @@ export function ChatSidebar(props: Props) {
               exit={{ x: '-100%' }}
               transition={{ duration: 0.25, ease: [0.2, 0.8, 0.2, 1] }}
               aria-label="Conversations"
+              id="conversation-sidebar-drawer"
               className="absolute inset-y-0 left-0 max-w-[88vw] overflow-hidden border-r border-white/[0.1] shadow-[20px_0_60px_-10px_rgba(0,0,0,0.8)]"
             >
               <Content
                 {...props}
+                sidebarWidth={DEFAULT_SIDEBAR_WIDTH}
                 onSelect={(id) => {
                   onSelect(id);
                   onCloseDrawer();

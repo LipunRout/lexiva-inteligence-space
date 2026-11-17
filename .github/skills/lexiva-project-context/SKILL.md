@@ -96,7 +96,7 @@ Users should be able to:
 The exact behavior must always follow the current implementation.
 
 Do not invent backend functionality that does not exist.
-The current repository is still a landing-page prototype; these chat capabilities are product goals, not implemented functionality until the source code confirms them.
+Check the current source and the Current Pages table below before treating any capability as available; implemented behavior takes precedence over this product-goal list.
 
 ---
 
@@ -250,19 +250,20 @@ Always inspect the current project before implementing navigation changes.
 | Route | Current behavior |
 | --- | --- |
 | `/` | Lexiva concept landing page and workflow overview |
-| `/chat` | Local-only message preview; no AI provider calls or generated replies |
-| `/models` | Provider setup guidance; no connected provider is claimed as available |
-| `/compare` | Disabled comparison UI; no simulated or real model responses |
-| `/history` | Empty state; conversations are not persisted |
+| `/chat` | Signed-in provider-backed chat with account-scoped saved conversations |
+| `/models` | Model directory populated by configured providers; secure setup guidance when empty |
+| `/compare` | Signed-in comparison of two to four available models; shows actual provider responses and per-model errors, without saving results to chat history |
+| `/history` | Informational preview; saved conversations are accessible from the Chat sidebar |
+| `/login` | Supabase sign-in with OAuth and email OTP verification |
 
-The root layout renders shared navigation and the site-wide Lexiva footer on every route.
-These pages communicate target product structure but do not imply that model APIs, accounts, comparison, or persistence are implemented.
+The root layout renders shared navigation and the site-wide Lexiva footer on every route except the immersive `/chat` workspace and its sign-in screen.
+Chat and comparison use server-side provider calls. Provider APIs, accounts, and chat persistence are implemented; other features remain subject to the source code.
 
 ---
 
 # Target Homepage
 
-The homepage should primarily introduce Lexiva as an **AI Chat Workspace**. The repository currently renders a marketing-page prototype, so do not claim a working AI chat or provider integration until implemented.
+The homepage should primarily introduce Lexiva as an **AI Chat Workspace**. Keep homepage claims aligned with the working routes and provider configuration described above.
 
 The homepage should quickly communicate:
 
@@ -751,7 +752,9 @@ The above is a product target, not a description of features already present in 
 | Landing page | `src/app/page.tsx` | Hero and workflow overview |
 | Chat preview | `src/app/chat/page.tsx` | Local-only chat state and explicit provider-unavailable notice |
 | Model status | `src/app/models/page.tsx` | Provider registry empty state and secure setup guidance |
-| Compare preview | `src/app/compare/page.tsx` | Disabled comparison UI without fabricated responses |
+| Compare workspace | `src/app/compare/page.tsx`, `src/components/compare/compare-workspace.tsx` | Standalone signed-in side-by-side comparison of two to four available models, with actual provider attribution and per-model error states |
+| Chat workspace UI | `src/components/chat/chat-sidebar.tsx`, `src/components/chat/sidebar-resize-handle.tsx` | Conversation navigation and accessible draggable sidebar sizing on Chat |
+| Conversation titles | `src/lib/conversation-title.ts` | Short topic titles derived from each conversation's first prompt |
 | History page | `src/app/history/page.tsx` | Empty state for unimplemented persistence |
 | Shared footer | `src/components/ui/site-footer.tsx` | Product links and prototype/provider status across routes |
 | Brand asset | `public/lexiva-mark.png` | Official standalone gradient circuit mark; pair with the live-text Lexiva wordmark and Intelligence Space tagline |

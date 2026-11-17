@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useChatStore } from './use-chat-store';
 import { ChatSidebar } from './chat-sidebar';
 import { ChatHeader } from './chat-header';
@@ -9,6 +9,7 @@ import { EmptyChatState } from './empty-chat-state';
 import { MessageComposer } from './message-composer';
 import { getModel } from './data';
 import { useUser } from './use-user';
+import { DEFAULT_SIDEBAR_WIDTH, SidebarResizeHandle } from './sidebar-resize-handle';
 
 export function ChatLayout() {
   const chat = useChatStore();
@@ -16,9 +17,23 @@ export function ChatLayout() {
   const [ready, setReady] = useState(false);
   const [desktopOpen, setDesktopOpen] = useState(true);
   const [drawer, setDrawer] = useState(false);
+  const [sidebarWidth, setSidebarWidth] = useState(DEFAULT_SIDEBAR_WIDTH);
+  const [resizingSidebar, setResizingSidebar] = useState(false);
+  const requestedConversationId = useRef<string | null>(null);
 
   // Sample timestamps depend on "now", so render only after mounting (avoids hydration mismatch)
   useEffect(() => setReady(true), []);
+
+  useEffect(() => {
+    requestedConversationId.current = new URLSearchParams(window.location.search).get('conversation');
+  }, []);
+
+  useEffect(() => {
+    const requestedId = requestedConversationId.current;
+    if (!requestedId || !chat.conversations.some((conversation) => conversation.id === requestedId)) return;
+    chat.select(requestedId);
+    requestedConversationId.current = null;
+  }, [chat.conversations]);
 
   if (!ready) {
     return <div aria-busy="true" className="h-[calc(100dvh-env(safe-area-inset-top))] w-full bg-[#121215]" />;
@@ -44,6 +59,9 @@ export function ChatLayout() {
         conversations={chat.conversations}
         activeId={chat.activeId}
         open={desktopOpen}
+        sidebarWidth={sidebarWidth}
+        resizing={resizingSidebar}
+        currentPage="chat"
         drawerOpen={drawer}
         onCloseDrawer={() => setDrawer(false)}
         onSelect={chat.select}
@@ -53,8 +71,15 @@ export function ChatLayout() {
         user={user}
         userLoading={userLoading}
       />
+      {desktopOpen && (
+        <SidebarResizeHandle
+          width={sidebarWidth}
+          onWidthChange={setSidebarWidth}
+          onResizingChange={setResizingSidebar}
+        />
+      )}
 
-      <div className="relative flex min-w-0 flex-1 flex-col">
+      <div id="workspace-panel" className="relative flex min-w-0 flex-1 flex-col">
         <ChatHeader
           title={convo ? convo.title : 'New chat'}
           model={model}

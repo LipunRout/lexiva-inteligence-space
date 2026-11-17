@@ -1,4 +1,5 @@
 import type { Conversation, ModelGroup, ModelInfo } from './types';
+import { conversationTitleFromPrompt } from '@/lib/conversation-title';
 
 // Static "planned" list, kept only so older imports keep working.
 export const MODELS: ModelInfo[] = [
@@ -79,8 +80,7 @@ export const SUGGESTIONS = [
 ];
 
 export function titleFrom(text: string) {
-  const t = text.replace(/\s+/g, ' ').trim();
-  return t.length > 42 ? t.slice(0, 42).trimEnd() + '…' : t;
+  return conversationTitleFromPrompt(text);
 }
 
 export function noticeFor(modelId: string) {

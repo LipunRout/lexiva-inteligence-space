@@ -4,7 +4,7 @@ import Link from 'next/link';
 const ROWS = [
   { title: 'Try the chat preview', sub: 'See the conversation space (local only)', href: '/chat' },
   { title: 'Check model setup', sub: 'How providers will be connected securely', href: '/models' },
-  { title: 'See how comparison will work', sub: 'The compare layout, currently disabled', href: '/compare' },
+  { title: 'Compare model responses', sub: 'Run one prompt across configured models', href: '/compare' },
 ];
 
 export function GetStarted() {
@@ -16,8 +16,8 @@ export function GetStarted() {
             Get started <span className="hero-gradient">easily</span>
           </h2>
           <p className="mt-6 max-w-[480px] text-[18px] leading-[1.6] text-white/60">
-            Tour the prototype, check how models will connect, or see how side-by-side comparison is
-            planned.
+            Explore the workspace, check which models are configured, and compare their responses
+            side by side.
           </p>
         </div>
 

@@ -7,8 +7,16 @@ export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
 const Body = z.object({
-  models: z.array(z.string()).min(2).max(4),
-  prompt: z.string().min(1).max(20000),
+  models: z.array(z.string().min(1)).min(2).max(4),
+  prompt: z.string().trim().min(1).max(20000),
+}).superRefine(({ models }, context) => {
+  if (new Set(models).size !== models.length) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Choose a different model for each perspective",
+      path: ["models"],
+    });
+  }
 });
 
 export async function POST(req: Request) {
